@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset=UTF-8>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BuildPro - Construction Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--primary:#2563eb;--primary-dark:#1d4ed8;--success:#10b981;--warning:#f59e0b;--danger:#ef4444;--dark:#1e293b;--gray:#64748b;--light:#f8fafc;--border:#e2e8f0}
+body{font-family:'Inter',-apple-system,sans-serif;background:linear-gradient(135deg,#1e293b 0%,#0f172a 100%);min-height:100vh;color:#fff}
+.app{display:grid;grid-template-columns:280px 1fr;min-height:100vh}
+/* Sidebar */
+.sidebar{background:rgba(255,255,255,0.05);border-right:1px solid rgba(255,255,255,0.1);padding:1.5rem}
+.logo{display:flex;align-items:center;gap:0.75rem;margin-bottom:2rem}
+.logo-icon{width:48px;height:48px;background:linear-gradient(135deg,#10b981,#06b6d4);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.5rem}
+.logo h1{font-size:1.5rem;font-weight:700}
+.nav-btn{display:flex;align-items:center;gap:0.75rem;width:100%;padding:0.75rem 1rem;background:0;border:1px solid transparent;border-radius:10px;color:rgba(255,255,255,0.6);cursor:pointer;font-size:0.95rem;margin-bottom:0.5rem;transition:all 0.2s}
+.nav-btn:hover{background:rgba(255,255,255,0.05);color:#fff}
+.nav-btn.active{background:rgba(16,185,129,0.15);border-color:rgba(16,185,129,0.3);color:#10b981}
+/* Main */
+.main{padding:2rem;overflow-y:auto}
+/* Header Stats */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem}
+.stat-card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:1.25rem}
+.stat-card .v{font-size:1.75rem;font-weight:700}
+.stat-card .l{font-size:0.7rem;opacity:0.5;text-transform:uppercase}
+/* Sections */
+.section{display:none}
+.section.active{display:block}
+/* Scheduler */
+.tabs{display:flex;gap:0.5rem;margin-bottom:1.5rem;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:0.5rem}
+.tab-btn{padding:0.5rem 1rem;background:0;border:0;color:rgba(255,255,255,0.5);cursor:pointer;border-bottom:2px solid transparent}
+.tab-btn:hover,.tab-btn.active{color:#fff;border-bottom-color:#10b981}
+/* Forms */
+.add-form{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:1.25rem;margin-bottom:1.5rem}
+.add-form h3{margin-bottom:1rem}
+.f-row{display:grid;grid-template-columns:2fr 1fr auto;gap:0.75rem}
+.fg label{display:block;opacity:0.5;font-size:0.75rem;margin-bottom:0.3rem}
+.fi{width:100%;padding:0.6rem;background:#0a0a0f;border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff}
+.btn{padding:0.6rem 1.25rem;background:#10b981;color:#fff;border:0;border-radius:8px;cursor:pointer;font-weight:500}
+.btn:hover{background:#059669}
+/* Table */
+.tbl{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:12px;overflow-x:auto}
+.tbl table{width:100%;border-collapse:collapse}
+.tbl th{text-align:left;padding:0.75rem;background:rgba(255,255,255,0.03);color:rgba(255,255,255,0.5);font-size:0.7rem;text-transform:uppercase}
+.tbl td{padding:0.75rem;border-top:1px solid rgba(255,255,255,0.05)}
+.tbl input{background:0;border:0;color:#fff;font-size:0.85rem;width:100%}
+.tbl .n{width:120px;font-weight:500}
+.tbl .d{width:50px;text-align:center;background:rgba(255,255,255,0.05);border-radius:4px;padding:0.2rem}
+.tbl .c{width:40px;text-align:center;font-size:0.75rem}
+.tbl .es{color:#3b82f6}.tbl .ef{color:#8b5cf6}.tbl .ls{color:#f59e0b}.tbl .lf{color:#ec4899}.tbl .flt{color:#10b981}
+.pred-tags{display:flex;gap:0.2rem;flex-wrap:wrap}
+.pred-tag{padding:0.1rem 0.35rem;background:rgba(59,130,246,0.2);color:#60a5fa;border-radius:4px;font-size:0.6rem}
+.badge{padding:0.2rem 0.5rem;border-radius:100px;font-size:0.65rem}
+.badge-crit{background:rgba(239,68,68,0.2);color:#f87171}
+.badge-norm{background:rgba(16,185,129,0.2);color:#10b981}
+.del{background:0;border:0;color:#f87171;cursor:pointer;opacity:0.5;font-size:1rem}
+.del:hover{opacity:1}
+.crit-row{background:rgba(239,68,68,0.05)}
+/* Quotes Panel */
+.quote-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+.quote-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:1.5rem}
+.quote-card h3{margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem}
+.q-row{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:0.75rem}
+.q-row.full{grid-template-columns:1fr}
+.qfg label{display:block;opacity:0.5;font-size:0.75rem;margin-bottom:0.3rem}
+.qfi{width:100%;padding:0.6rem;background:#0a0a0f;border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;font-size:0.9rem}
+.qs{background:rgba(255,255,255,0.05);border-radius:8px;padding:1rem;margin-bottom:1rem}
+.qs-row{display:flex;justify-content:space-between;padding:0.4rem 0;border-bottom:1px solid rgba(255,255,255,0.05)}
+.qs-row:last-child{border:0;font-weight:600}
+.qs-row.total{font-size:1.1rem;color:#10b981;margin-top:0.5rem;padding-top:0.75rem;border-top:2px solid rgba(255,255,255,0.1)}
+/* Quote List */
+.quote-list{display:flex;flex-direction:column;gap:0.75rem;max-height:400px;overflow-y:auto}
+.quote-item{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:1rem;cursor:pointer;transition:all 0.2s}
+.quote-item:hover{border-color:rgba(16,185,129,0.3)}
+.quote-item .id{font-size:0.75rem;opacity:0.5}
+.quote-item .client{font-weight:600;margin:0.25rem 0}
+.quote-item .amt{color:#10b981;font-weight:600}
+.quote-item .date{font-size:0.75rem;opacity:0.5}
+/* Empty */
+.empty{padding:3rem;text-align:center;opacity:0.4}
+/* Legend */
+.lg{margin-bottom:1rem;font-size:0.75rem;color:rgba(255,255,255,0.5)}
+.lg span{margin-right:1rem}
+.lg b{background:rgba(255,255,255,0.1);padding:0.1rem 0.3rem;border-radius:3px;margin-right:0.2rem}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<div class=app>
+<div class=sidebar>
+<div class=logo><div class=logo-icon>🏗️</div><h1>BuildPro</h1></div>
+<button class="nav-btn active" data-nav=scheduler onclick="showNav('scheduler')">📅 Scheduler</button>
+<button class=nav-btn data-nav=quotes onclick="showNav('quotes')">📝 Quotes</button>
+<button class=nav-btn data-nav=projects onclick="showNav('projects')">📋 Projects</button>
+</div>
+<div class=main>
+<!-- SCHEDULER SECTION -->
+<div class=section id=scheduler>
+<div class=stats-grid>
+<div class=stat-card><div class=v id=st>0</div><div class=l>Tasks</div></div>
+<div class=stat-card><div class=v id=sd>0</div><div class=l>Days</div></div>
+<div class=stat-card><div class=v id=sc>0</div><div class=l>Critical</div></div>
+<div class=stat-card><div class=v id=sf>0</div><div class=l>With Float</div></div>
+</div>
+<div class=tabs>
+<button class="tab-btn active" data-tab=stasks onclick="showTab('stasks')">📋 Tasks</button>
+<button class=tab-btn data-tab=sgantt onclick="showTab('sgantt')">📊 Gantt</button>
+<button class=tab-btn data-tab=stimeline onclick="showTab('stimeline')">📅 Timeline</button>
+</div>
+<div class="section active" id=stasks>
+<div class=lg><span><b>ES</b>Early Start</span><span><b>EF</b>Early Finish</span><span><b>LS</b>Late Start</span><span><b>LF</b>Late Finish</span><span><b>Float</b>Slack</span></div>
+<div class=add-form>
+<h3>➕ Add Task</h3>
+<div class=f-row>
+<div class=fg><label>Task Name</label><input class=fi id=tn placeholder="e.g., Foundation"></div>
+<div class=fg><label>Days</label><input class=fi type=number id=td value=1 min=1></div>
+<div class=fg style=display:flex;align-items:flex-end><button class=btn onclick=addTask()>Add</button></div>
+</div>
+</div>
+<div class=tbl><table><thead><tr><th>Task</th><th>Days</th><th>Predecessors</th><th class=c>ES</th><th class=c>EF</th><th class=c>LS</th><th class=c>LF</th><th class=c>Float</th><th>Status</th><th></th></tr></thead><tbody id=taskTable></tbody></table><div class=empty id=taskEmpty>No tasks. Add one or load example.</div></div>
+</div>
+<div class=section id=sgantt><div class=tbl id=ganttChart></div></div>
+<div class=section id=stimeline><div id=timeline></div></div>
+</div>
+<!-- QUOTES SECTION -->
+<div class=section id=quotes>
+<div class=quote-grid>
+<div class=quote-card>
+<h3>📝 New Quote</h3>
+<div class=q-row><div class=qfg><label>Client Name</label><input class=qfi id=qclient placeholder="John Smith"></div><div class=qfg><label>Project</label><input class=qfi id=qproject placeholder="Kitchen Remodel"></div></div>
+<div class="q-row full"><div class=qfg><label>Address</label><input class=qfi id=qaddress placeholder="123 Main St, City"></div></div>
+<div class=q-row><div class=qfg><label>Email</label><input class=qfi id=qemail placeholder="client@email.com"></div><div class=qfg><label>Phone</label><input class=qfi id=qphone placeholder="(555) 123-4567"></div></div>
+<div class=q-row><div class=qfg><label>Labor Rate ($/hr)</label><input class=qfi type=number id=qlabor value=75></div><div class=qfg><label>Markup (%)</label><input class=qfi type=number id=qmarkup value=30></div></div>
+<h4 style=margin:1rem0>Line Items</h4>
+<div id=lineItems></div>
+<button class=btn style=background:#374151 onclick="addLineItem()">➕ Add Item</button>
+<div class=qs>
+<div class=qs-row><span>Labor</span><span id=qlaborTotal>$0</span></div>
+<div class=qs-row><span>Materials</span><span id=qmatTotal>$0</span></div>
+<div class=qs-row><span>Markup</span><span id=qmarkTotal>$0</span></div>
+<div class="qs-row total"><span>TOTAL</span><span id=qtotal>$0</span></div>
+</div>
+<button class=btn style=width:100% onclick=saveQuote()>💾 Save Quote</button>
+</div>
+<div class=quote-card>
+<h3>📋 Saved Quotes</h3>
+<div class=quote-list id=quoteList></div>
+</div>
+</div>
+</div>
+<!-- PROJECTS SECTION -->
+<div class=section id=projects>
+<h2 style=margin-bottom:1rem>📋 Projects</h2>
+<p style=opacity:0.5>Coming soon - combine Scheduler + Quotes into projects</p>
+</div>
+</div>
+</div>
+<script>
+// DATA
+let tasks=[],selectedPreds=[],quotes=[];
+// LOAD
+let s=localStorage.getItem('bp-tasks');if(s)try{tasks=JSON.parse(s)}catch(e){}
+let q=localStorage.getItem('bp-quotes');if(q)try{quotes=JSON.parse(q)}catch(e){}
+// SCHEDULER CPM
+function cpm(){if(!tasks.length)return[];
+let m=new Map(tasks.map(t=>[t.id,{...t}])),a=Array.from(m.values()),p=new Set(),i=0;
+while(p.size<a.length&&i<100){for(let t of a){if(p.has(t.id))continue;let ok=!0,x=0;for(let pid of t.predecessor){let pm=m.get(pid);if(!pm||!p.has(pid)){ok=!1;break;}x=Math.max(x,pm.ef);}if(ok||!t.predecessor.length){t.es=x;t.ef=t.es+t.duration;p.add(t.id);}}}i++;}
+let pd=Math.max(...Array.from(m.values()).map(t=>t.ef),0);p.clear();let r=Array.from(m.values()).reverse();i=0;
+while(p.size<a.length&&i<100){for(let t of r){if(p.has(t.id))continue;let ss=Array.from(m.values()).filter(s=>s.predecessor.includes(t.id));let ok=!0,x=pd;if(!ss.length)t.lf=pd;else{for(let s of ss){if(!p.has(s.id)){ok=!1;break;}x=Math.min(x,s.ls);}if(ok)t.lf=x;}if(ok){t.ls=t.lf-t.duration;t.float=t.ls-t.es;t.isCrit=t.float===0;p.add(t.id);}}}i++;}return Array.from(m.values());}
+function render(){let ct=cpm(),pd=Math.max(...ct.map(t=>t.ef),0);
+document.getElementById('st').textContent=ct.length;document.getElementById('sd').textContent=pd;document.getElementById('sc').textContent=ct.filter(t=>t.isCrit).length;document.getElementById('sf').textContent=ct.filter(t=>t.float>0).length;
+let tb=document.getElementById('taskTable'),te=document.getElementById('taskEmpty');
+if(!ct.length){tb.innerHTML='';te.classList.remove('hidden')}else{te.classList.add('hidden');tb.innerHTML=ct.map(t=>{let pt=t.predecessor.map(pid=>{let p=ct.find(x=>x.id===pid);return p?`<span class=pred-tag>${p.name}</span>`:''}).join('');return`<tr class="${t.isCrit?'crit-row':''}"><td><input class=n value="${t.name}" onchange="upTN('${t.id}',this.value)"></td><td><input class=d type=number value="${t.duration}" min=1 onchange="upTD('${t.id}',this.value)"></td><td><div class=pred-tags>${pt||'<span style=opacity:0.3>-</span>'}</td><td class=c.es>${t.es}</td><td class=c.ef>${t.ef}</td><td class=c.ls>${t.ls}</td><td class=c.lf>${t.lf}</td><td class=c.flt>${t.float}</td><td><span class="badge ${t.isCrit?'badge-crit':'badge-norm'}">${t.isCrit?'Critical':'Normal'}</span></td><td><button class=del onclick="delT('${t.id}')">✕</button></td></tr>`}).join('');}
+localStorage.setItem('bp-tasks',JSON.stringify(tasks));}
+function addTask(){let n=document.getElementById('tn').value.trim(),d=parseInt(document.getElementById('td').value)||1;if(!n)return;tasks.push({id:'t'+Date.now(),name:n,duration:d,predecessor:[...selectedPreds]});document.getElementById('tn').value='';selectedPreds=[];render();}
+function delT(id){tasks=tasks.filter(t=>t.id!==id).map(t=>({...t,predecessor:t.predecessor.filter(p=>p!==id)}));render();}
+function upTN(id,name){let t=tasks.find(x=>x.id===id);if(t)t.name=name;localStorage.setItem('bp-tasks',JSON.stringify(tasks));}
+function upTD(id,dur){let t=tasks.find(x=>x.id===id);if(t)t.duration=parseInt(dur)||1;render();}
+// QUOTES
+let lineItems=[{desc:'Demolition',qty:1,rate:500,type:'labor'}];
+function renderQuotes(){let ql=document.getElementById('quoteList');
+ql.innerHTML=quotes.length?quotes.map((q,i)=>`<div class=quote-item onclick="loadQuote(${i})"><div class=id>Quote #${q.id}</div><div class=client>${q.client}</div><div class=amt>$${q.total.toLocaleString()}</div><div class=date>${q.date}</div></div>`).join(''):'<p style=opacity:0.5;text-align:center;padding:2rem>No quotes yet</p>';}
+function addLineItem(){lineItems.push({desc:'',qty:1,rate:0,type:'material'});renderLineItems();}
+function renderLineItems(){let li=document.getElementById('lineItems');
+li.innerHTML=lineItems.map((l,i)=>`<div class=q-row style=margin-bottom:0.5rem><div class=qfg style=flex:2><input class=qfi placeholder="Description" value="${l.desc}" onchange="upLI(${i},'desc',this.value)"></div><div class=qfg><input class=qfi type=number placeholder="Qty" value="${l.qty}" onchange="upLI(${i},'qty',this.value)"></div><div class=qfg><input class=qfi type=number placeholder="$" value="${l.rate}" onchange="upLI(${i},'rate',this.value)"></div><button style=background:#ef4444;border:0;border-radius:4px;color:#fff;cursor:pointer onclick="delLI(${i})">✕</button></div>`).join('');calcQuote();}
+function upLI(i,f,v){lineItems[i][f]=f==='desc'?v:parseFloat(v)||0;calcQuote();}
+function delLI(i){lineItems.splice(i,1);renderLineItems();}
+function calcQuote(){let labor=lineItems.filter(l=>l.type==='labor').reduce((s,l)=>s+l.qty*l.rate,0),material=lineItems.filter(l=>l.type==='material').reduce((s,l)=>s+l.qty*l.rate,0),markup=parseFloat(document.getElementById('qmarkup').value)||0,markAmt=(labor+material)*(markup/100),total=labor+material+markAmt;
+document.getElementById('qlaborTotal').textContent='$'+labor.toLocaleString();document.getElementById('qmatTotal').textContent='$'+material.toLocaleString();document.getElementById('qmarkTotal').textContent='$'+markAmt.toLocaleString();document.getElementById('qtotal').textContent='$'+total.toLocaleString();return total;}
+function saveQuote(){let t=calcQuote(),q={id:Date.now(),client:document.getElementById('qclient').value,project:document.getElementById('qproject').value,address:document.getElementById('qaddress').value,email:document.getElementById('qemail').value,phone:document.getElementById('qphone').value,labor:document.getElementById('qlabor').value,markup:document.getElementById('qmarkup').value,items:[...lineItems],total:t,date:new Date().toLocaleDateString()};quotes.push(q);localStorage.setItem('bp-quotes',JSON.stringify(quotes));renderQuotes();document.getElementById('qclient').value='';document.getElementById('qproject').value='';document.getElementById('qaddress').value='';document.getElementById('qemail').value='';document.getElementById('qphone').value='';lineItems=[{desc:'',qty:1,rate:0,type:'labor'}];renderLineItems();}
+// NAVIGATION
+function showNav(n){document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));document.querySelector(`[data-nav="${n}"]`).classList.add('active');document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.getElementById(n).classList.add('active');if(n==='quotes')renderQuotes();}
+function showTab(t){document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.querySelector(`[data-tab="${t}"]`).classList.add('active');document.querySelectorAll('#scheduler .section').forEach(s=>s.classList.remove('active'));document.getElementById(t).classList.add('active');}
+// INIT
+render();renderLineItems();renderQuotes();
+</script>
+</body>
+</html>
