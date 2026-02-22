@@ -1,564 +1,374 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BuildPath - CPM Scheduler</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0a0f; color: #fff; line-height: 1.6; }
-    
-    /* Header */
-    .header { background: linear-gradient(135deg, #059669 0%, #0891b2 100%); padding: 2rem; }
-    .header-inner { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
-    .logo { font-size: 2.5rem; font-weight: 800; }
-    .project-duration { text-align: right; }
-    .duration-number { font-size: 3rem; font-weight: 700; }
-    .duration-label { opacity: 0.8; font-size: 0.875rem; }
-    
-    /* Stats */
-    .stats { max-width: 1200px; margin: 1.5rem auto; padding: 0 1.5rem; }
-    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
-    .stat-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 1.25rem; }
-    .stat-value { font-size: 1.75rem; font-weight: 700; }
-    .stat-label { opacity: 0.5; font-size: 0.8rem; text-transform: uppercase; }
-    
-    /* Tabs */
-    .tabs { max-width: 1200px; margin: 0 auto; padding: 1rem 1.5rem 0; display: flex; gap: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
-    .tab { padding: 0.75rem 1.5rem; background: transparent; border: none; color: rgba(255,255,255,0.5); cursor: pointer; font-size: 1rem; border-bottom: 2px solid transparent; transition: all 0.2s; }
-    .tab:hover { color: #fff; }
-    .tab.active { color: #fff; border-bottom-color: #10b981; }
-    .tab-spacer { flex: 1; }
-    .tab-btn { padding: 0.5rem 1rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fbbf24; border-radius: 8px; cursor: pointer; font-size: 0.875rem; }
-    .tab-btn:hover { background: rgba(255,255,255,0.1); }
-    .tab-btn.danger { color: #f87171; }
-    
-    /* Legend */
-    .legend { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem 1rem; display: flex; gap: 1.5rem; flex-wrap: wrap; align-items: center; }
-    .legend-title { font-size: 0.8rem; color: rgba(255,255,255,0.5); font-weight: 500; }
-    .legend-items { display: flex; gap: 1rem; flex-wrap: wrap; }
-    .legend-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.75rem; color: rgba(255,255,255,0.6); }
-    .legend-abbr { font-weight: 600; color: #fff; background: rgba(255,255,255,0.1); padding: 0.15rem 0.4rem; border-radius: 4px; }
-    .legend-item.es .legend-abbr { color: #3b82f6; background: rgba(59,130,246,0.15); }
-    .legend-item.ef .legend-abbr { color: #8b5cf6; background: rgba(139,92,246,0.15); }
-    .legend-item.ls .legend-abbr { color: #f59e0b; background: rgba(245,158,11,0.15); }
-    .legend-item.lf .legend-abbr { color: #ec4899; background: rgba(236,72,153,0.15); }
-    .legend-item.float .legend-abbr { color: #10b981; background: rgba(16,185,129,0.15); }
-    .legend-item.crit .legend-abbr { color: #ef4444; background: rgba(239,68,68,0.15); }
-    
-    /* Content */
-    .content { max-width: 1200px; margin: 0 auto; padding: 1.5rem; }
-    
-    /* Add Task Form */
-    .add-task { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; }
-    .add-task h3 { margin-bottom: 1rem; font-size: 1.1rem; }
-    .form-row { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
-    .form-group label { display: block; opacity: 0.5; font-size: 0.8rem; margin-bottom: 0.5rem; }
-    .form-input { width: 100%; padding: 0.75rem; background: #0a0a0f; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; font-size: 1rem; }
-    .form-input:focus { outline: none; border-color: #10b981; }
-    .btn { padding: 0.75rem 1.5rem; background: #10b981; color: #fff; border: none; border-radius: 8px; font-size: 1rem; font-weight: 500; cursor: pointer; transition: background 0.2s; }
-    .btn:hover { background: #059669; }
-    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    
-    /* Predecessors */
-    .pred-section { margin-top: 1rem; }
-    .pred-label { opacity: 0.5; font-size: 0.8rem; margin-bottom: 0.5rem; }
-    .pred-list { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-    .pred-btn { padding: 0.4rem 0.8rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 100px; color: rgba(255,255,255,0.5); font-size: 0.8rem; cursor: pointer; transition: all 0.2s; }
-    .pred-btn:hover { color: #fff; }
-    .pred-btn.selected { background: rgba(16, 185, 129, 0.2); border-color: #10b981; color: #10b981; }
-    
-    /* Task Table */
-    .task-table { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; overflow: hidden; }
-    .task-table table { width: 100%; border-collapse: collapse; }
-    .task-table th { text-align: left; padding: 1rem; background: rgba(255,255,255,0.03); color: rgba(255,255,255,0.5); font-weight: 500; font-size: 0.8rem; text-transform: uppercase; }
-    .task-table td { padding: 1rem; border-top: 1px solid rgba(255,255,255,0.05); }
-    .task-table input { background: transparent; border: none; color: #fff; font-size: 1rem; }
-    .task-table input:focus { outline: none; }
-    .task-name-input { width: 100%; }
-    .task-dur-input { width: 60px; text-align: center; background: rgba(255,255,255,0.05); border-radius: 4px; padding: 0.25rem; }
-    .crit-row { background: rgba(239, 68, 68, 0.05); }
-    .badge { padding: 0.25rem 0.75rem; border-radius: 100px; font-size: 0.75rem; font-weight: 500; }
-    .badge-crit { background: rgba(239, 68, 68, 0.2); color: #f87171; }
-    .badge-norm { background: rgba(16, 185, 129, 0.2); color: #10b981; }
-    .badge-float { background: rgba(16, 185, 129, 0.2); color: #10b981; }
-    .delete-btn { background: none; border: none; color: #f87171; cursor: pointer; font-size: 1.25rem; opacity: 0.5; }
-    .delete-btn:hover { opacity: 1; }
-    .pred-tags { display: flex; gap: 0.25rem; flex-wrap: wrap; }
-    .pred-tag { padding: 0.15rem 0.5rem; background: rgba(59, 130, 246, 0.2); color: #60a5fa; border-radius: 4px; font-size: 0.7rem; }
-    .empty-state { padding: 3rem; text-align: center; opacity: 0.4; }
-    
-    /* Gantt */
-    .gantt-container { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 1.5rem; overflow-x: auto; }
-    .gantt-header { display: flex; margin-left: 200px; margin-bottom: 0.5rem; }
-    .gantt-day { flex: 1; min-width: 30px; text-align: center; font-size: 0.7rem; color: rgba(255,255,255,0.3); border-left: 1px solid rgba(255,255,255,0.05); padding: 0.25rem; }
-    .gantt-row { display: flex; align-items: center; margin-bottom: 0.5rem; }
-    .gantt-label { width: 200px; font-size: 0.875rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 1rem; }
-    .gantt-bar-container { flex: 1; position: relative; height: 28px; }
-    .gantt-bar { position: absolute; height: 24px; top: 2px; border-radius: 4px; display: flex; align-items: center; padding: 0 0.5rem; font-size: 0.75rem; font-weight: 500; }
-    .gantt-bar.crit { background: linear-gradient(90deg, #ef4444, #f97316); }
-    .gantt-bar.norm { background: linear-gradient(90deg, #10b981, #06b6d4); }
-    .gantt-grid { position: absolute; inset: 0; display: flex; }
-    .gantt-grid-cell { flex: 1; border-left: 1px solid rgba(255,255,255,0.05); }
-    
-    /* Timeline */
-    .timeline { display: flex; flex-direction: column; gap: 0.75rem; }
-    .timeline-item { display: flex; align-items: center; gap: 1rem; padding: 1rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; }
-    .timeline-item.crit { border-color: rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.05); }
-    .timeline-num { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; }
-    .timeline-num.crit { background: rgba(239, 68, 68, 0.2); color: #f87171; }
-    .timeline-num.norm { background: rgba(16, 185, 129, 0.2); color: #10b981; }
-    .timeline-info { flex: 1; }
-    .timeline-name { font-weight: 500; }
-    .timeline-dates { font-size: 0.875rem; opacity: 0.5; }
-    .timeline-badge { padding: 0.25rem 0.75rem; border-radius: 100px; font-size: 0.75rem; }
-    
-    /* Summary Cards */
-    .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-    .summary-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 1.5rem; }
-    .summary-card h4 { margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
-    .summary-card.crit h4 { color: #f87171; }
-    .summary-card.norm h4 { color: #10b981; }
-    .summary-list { font-size: 0.875rem; opacity: 0.7; }
-    .summary-list div { padding: 0.25rem 0; }
-    
-    .hidden { display: none; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BuildPro - All-in-One Construction Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --primary: #10b981;
+  --primary-dark: #059669;
+  --bg: #0a0a0f;
+  --bg2: #111118;
+  --border: rgba(255,255,255,0.1);
+  --text: #fff;
+  --text2: rgba(255,255,255,0.6);
+}
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+.app { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+.sidebar { background: var(--bg2); border-right: 1px solid var(--border); padding: 1.5rem; }
+.logo { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 2rem; }
+.logo-icon { width: 44px; height: 44px; background: linear-gradient(135deg, var(--primary), #06b6d4); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+.logo h1 { font-size: 1.5rem; font-weight: 700; }
+.nav { display: flex; flex-direction: column; gap: 0.5rem; }
+.nav-btn { display: flex; align-items: center; gap: 0.75rem; width: 100%; padding: 0.75rem 1rem; background: transparent; border: 1px solid transparent; border-radius: 10px; color: var(--text2); cursor: pointer; font-size: 0.95rem; transition: all 0.2s; text-align: left; }
+.nav-btn:hover { background: rgba(255,255,255,0.05); color: var(--text); }
+.nav-btn.active { background: rgba(16,185,129,0.15); border-color: rgba(16,185,129,0.3); color: var(--primary); }
+.main { padding: 2rem; overflow-y: auto; }
+.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+.header h2 { font-size: 1.75rem; }
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+.stat { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; }
+.stat .val { font-size: 1.5rem; font-weight: 700; }
+.stat .lbl { font-size: 0.7rem; color: var(--text2); text-transform: uppercase; }
+.section { display: none; }
+.section.active { display: block; }
+.tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
+.tab { padding: 0.5rem 1rem; background: 0; border: 0; color: var(--text2); cursor: pointer; font-size: 0.9rem; border-bottom: 2px solid transparent; }
+.tab:hover, .tab.active { color: var(--text); border-bottom-color: var(--primary); }
+.card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem; }
+.card h3 { margin-bottom: 1rem; }
+.form { display: grid; grid-template-columns: 2fr 1fr auto; gap: 0.75rem; margin-bottom: 1rem; }
+.form-group label { display: block; font-size: 0.75rem; color: var(--text2); margin-bottom: 0.3rem; }
+.form-group input, .form-group select { width: 100%; padding: 0.6rem; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 0.9rem; }
+.btn { padding: 0.6rem 1.25rem; background: var(--primary); color: #fff; border: 0; border-radius: 8px; cursor: pointer; font-weight: 500; }
+.btn:hover { background: var(--primary-dark); }
+.btn2 { background: rgba(255,255,255,0.1); }
+.tbl { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; overflow-x: auto; }
+.tbl table { width: 100%; border-collapse: collapse; }
+.tbl th { text-align: left; padding: 0.75rem; background: rgba(255,255,255,0.03); color: var(--text2); font-size: 0.7rem; text-transform: uppercase; }
+.tbl td { padding: 0.75rem; border-top: 1px solid var(--border); }
+.tbl input { background: 0; border: 0; color: var(--text); width: 100%; }
+.tbl .num { width: 50px; text-align: center; background: rgba(255,255,255,0.05); border-radius: 4px; }
+.es { color: #3b82f6; }
+.ef { color: #8b5cf6; }
+.ls { color: #f59e0b; }
+.lf { color: #ec4899; }
+.flt { color: var(--primary); }
+.badge { padding: 0.2rem 0.5rem; border-radius: 100px; font-size: 0.7rem; }
+.badge-crit { background: rgba(239,68,68,0.2); color: #f87171; }
+.badge-norm { background: rgba(16,185,129,0.2); color: var(--primary); }
+.del { background: 0; border: 0; color: #f87171; cursor: pointer; font-size: 1.1rem; }
+.empty { padding: 2rem; text-align: center; color: var(--text2); }
+.quote-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+.quote-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
+.quote-card h3 { margin-bottom: 1rem; }
+.line-items { margin-bottom: 1rem; }
+.line-item { display: grid; grid-template-columns: 2fr 80px 80px 80px auto; gap: 0.5rem; margin-bottom: 0.5rem; align-items: end; }
+.line-item input { padding: 0.5rem; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); }
+.line-item .del { padding: 0.5rem; background: rgba(239,68,68,0.2); border-radius: 6px; }
+.total { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); border-radius: 8px; padding: 1rem; margin-top: 1rem; }
+.total-row { display: flex; justify-content: space-between; padding: 0.3rem 0; }
+.total-row.final { font-size: 1.2rem; font-weight: 700; color: var(--primary); border-top: 1px solid var(--border); padding-top: 0.5rem; margin-top: 0.5rem; }
+.saved-list { max-height: 400px; overflow-y: auto; }
+.saved-item { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; margin-bottom: 0.5rem; cursor: pointer; }
+.saved-item:hover { border-color: var(--primary); }
+.saved-item .id { font-size: 0.75rem; color: var(--text2); }
+.saved-item .client { font-weight: 600; margin: 0.25rem 0; }
+.saved-item .amt { color: var(--primary); font-weight: 600; }
+.legend { font-size: 0.75rem; color: var(--text2); margin-bottom: 1rem; }
+.legend span { margin-right: 1rem; }
+.legend b { background: rgba(255,255,255,0.1); padding: 0.1rem 0.3rem; border-radius: 3px; margin-right: 0.2rem; }
+</style>
 </head>
 <body>
-  <!-- Header -->
-  <div class="header">
-    <div class="header-inner">
-      <div class="logo">🏗️ BuildPath</div>
-      <div class="project-duration">
-        <div class="duration-number" id="totalDuration">0</div>
-        <div class="duration-label">days</div>
-      </div>
-    </div>
-  </div>
-  
-  <!-- Stats -->
-  <div class="stats">
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-value" id="totalTasks">0</div>
-        <div class="stat-label">Total Tasks</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value" id="critTasks">0</div>
-        <div class="stat-label">Critical Tasks</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value" id="floatTasks">0</div>
-        <div class="stat-label">With Float</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value" id="totalFloat">0</div>
-        <div class="stat-label">Total Float</div>
-      </div>
-    </div>
-  </div>
-  
-  <!-- Tabs -->
-  <div class="tabs">
-    <button class="tab active" data-tab="tasks">📋 Tasks</button>
-    <button class="tab" data-tab="gantt">📊 Gantt Chart</button>
-    <button class="tab" data-tab="timeline">📅 Timeline</button>
-    <div class="tab-spacer"></div>
-    <button class="tab-btn" onclick="loadExample()">📚 Load Example</button>
-    <button class="tab-btn danger" onclick="clearProject()">🗑️ Clear</button>
-  </div>
-  
-  <!-- Legend -->
-  <div class="legend">
-    <span class="legend-title">CPM Terms:</span>
-    <div class="legend-items">
-      <div class="legend-item es"><span class="legend-abbr">ES</span> Early Start</div>
-      <div class="legend-item ef"><span class="legend-abbr">EF</span> Early Finish</div>
-      <div class="legend-item ls"><span class="legend-abbr">LS</span> Late Start</div>
-      <div class="legend-item lf"><span class="legend-abbr">LF</span> Late Finish</div>
-      <div class="legend-item float"><span class="legend-abbr">Float</span> Slack (buffer days)</div>
-      <div class="legend-item crit"><span class="legend-abbr">Critical</span> No float - must stay on schedule</div>
-    </div>
-  </div>
-  
-  <!-- Tasks Tab -->
-  <div class="content" id="tab-tasks">
-    <!-- Add Task -->
-    <div class="add-task">
-      <h3>➕ Add New Task</h3>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Task Name</label>
-          <input type="text" id="newTaskName" class="form-input" placeholder="e.g., Foundation Work">
-        </div>
-        <div class="form-group">
-          <label>Duration (days)</label>
-          <input type="number" id="newTaskDuration" class="form-input" value="1" min="1">
-        </div>
-        <div class="form-group" style="display:flex;align-items:flex-end;">
-          <button class="btn" onclick="addTask()" style="width:100%;">Add Task</button>
-        </div>
-      </div>
-      <div class="pred-section hidden" id="predSection">
-        <div class="pred-label">Predecessors (click to select)</div>
-        <div class="pred-list" id="predList"></div>
-      </div>
-    </div>
-    
-    <!-- Task Table -->
-    <div class="task-table">
-      <table>
-        <thead>
-          <tr>
-            <th>Task</th>
-            <th style="width:80px;text-align:center;">Days</th>
-            <th style="width:150px;text-align:center;">Predecessors<br><span style="font-weight:normal;font-size:0.65rem;opacity:0.5">must finish first</span></th>
-            <th style="width:50px;text-align:center;"><span title="Earliest day this task can START">ES</span><br><span style="font-weight:normal;font-size:0.65rem;opacity:0.5">Early Start</span></th>
-            <th style="width:50px;text-align:center;"><span title="Earliest day this task can FINISH">EF</span><br><span style="font-weight:normal;font-size:0.65rem;opacity:0.5">Early Finish</span></th>
-            <th style="width:50px;text-align:center;"><span title="Latest day this task can START without delaying project">LS</span><br><span style="font-weight:normal;font-size:0.65rem;opacity:0.5">Late Start</span></th>
-            <th style="width:50px;text-align:center;"><span title="Latest day this task can FINISH without delaying project">LF</span><br><span style="font-weight:normal;font-size:0.65rem;opacity:0.5">Late Finish</span></th>
-            <th style="width:50px;text-align:center;"><span title="How many days this task can be delayed">Float</span><br><span style="font-weight:normal;font-size:0.65rem;opacity:0.5">Slack/Buffer</span></th>
-            <th style="width:100px;text-align:center;">Status</th>
-            <th style="width:40px;"></th>
-          </tr>
-        </thead>
-        <tbody id="taskTableBody">
-        </tbody>
-      </table>
-      <div class="empty-state" id="emptyState">
-        No tasks yet. Add a task above or load an example.
-      </div>
-    </div>
-  </div>
-  
-  <!-- Gantt Tab -->
-  <div class="content hidden" id="tab-gantt">
-    <div class="gantt-container" id="ganttContainer">
-      <p style="opacity:0.4;text-align:center;padding:2rem;">Add tasks to see the Gantt chart</p>
-    </div>
-  </div>
-  
-  <!-- Timeline Tab -->
-  <div class="content hidden" id="tab-timeline">
-    <div id="timelineContainer">
-      <p style="opacity:0.4;text-align:center;padding:2rem;">Add tasks to see the timeline</p>
-    </div>
-    <div class="summary-grid" id="summaryGrid" style="margin-top:1.5rem;display:none;">
-      <div class="summary-card crit">
-        <h4>🔴 Critical Path</h4>
-        <div class="summary-list" id="critList"></div>
-      </div>
-      <div class="summary-card norm">
-        <h4>🟢 Tasks with Float</h4>
-        <div class="summary-list" id="floatList"></div>
-      </div>
-    </div>
-  </div>
+<div class="app">
+<div class="sidebar">
+<div class="logo"><div class="logo-icon">🏗️</div><h1>BuildPro</h1></div>
+<div class="nav">
+<button class="nav-btn active" onclick="show('scheduler')">📅 Scheduler</button>
+<button class="nav-btn" onclick="show('quotes')">📝 Quotes</button>
+</div>
+</div>
+<div class="main">
+<!-- SCHEDULER -->
+<div id="scheduler" class="section active">
+<div class="header"><h2>📅 Project Scheduler</h2></div>
+<div class="stats">
+<div class="stat"><div class="val" id="totalTasks">0</div><div class="lbl">Tasks</div></div>
+<div class="stat"><div class="val" id="totalDays">0</div><div class="lbl">Days</div></div>
+<div class="stat"><div class="val" id="critTasks">0</div><div class="lbl">Critical</div></div>
+<div class="stat"><div class="val" id="floatTasks">0</div><div class="lbl">With Float</div></div>
+</div>
+<div class="tabs">
+<button class="tab active" onclick="showTab('tasks')">Tasks</button>
+<button class="tab" onclick="showTab('gantt')">Gantt</button>
+<button class="tab" onclick="showTab('timeline')">Timeline</button>
+</div>
+<div id="tasks" class="section active">
+<div class="legend"><span><b>ES</b>Early Start</span><span><b>EF</b>Early Finish</span><span><b>LS</b>Late Start</span><span><b>LF</b>Late Finish</span><span><b>Float</b>Slack</span></div>
+<div class="card">
+<h3>➕ Add Task</h3>
+<div class="form">
+<div class="form-group"><label>Task Name</label><input id="taskName" placeholder="e.g., Foundation"></div>
+<div class="form-group"><label>Days</label><input id="taskDays" type="number" value="1" min="1"></div>
+<div class="form-group" style="display:flex;align-items:flex-end"><button class="btn" onclick="addTask()">Add</button></div>
+</div>
+</div>
+<div class="tbl">
+<table><thead><tr><th>Task</th><th>Days</th><th>ES</th><th>EF</th><th>LS</th><th>LF</th><th>Float</th><th>Status</th><th></th></tr></thead>
+<tbody id="taskTable"></tbody>
+</table>
+<div class="empty" id="emptyState">No tasks yet. Add a task above.</div>
+</div>
+</div>
+<div id="gantt" class="section"><div class="tbl" id="ganttChart"></div></div>
+<div id="timeline" class="section" id="timelineChart"></div>
+</div>
+<!-- QUOTES -->
+<div id="quotes" class="section">
+<div class="header"><h2>📝 Quote Builder</h2></div>
+<div class="quote-grid">
+<div class="quote-card">
+<h3>New Quote</h3>
+<div class="form" style="grid-template-columns:1fr 1fr">
+<div class="form-group"><label>Client</label><input id="qClient" placeholder="Client name"></div>
+<div class="form-group"><label>Project</label><input id="qProject" placeholder="Project name"></div>
+</div>
+<div class="form-group" style="margin-bottom:1rem"><label>Address</label><input id="qAddress" placeholder="Project address"></div>
+<div class="form" style="grid-template-columns:1fr 1fr">
+<div class="form-group"><label>Email</label><input id="qEmail" placeholder="client@email.com"></div>
+<div class="form-group"><label>Phone</label><input id="qPhone" placeholder="(555) 123-4567"></div>
+</div>
+<h4 style="margin:1rem 0">Line Items</h4>
+<div class="line-items" id="lineItems"></div>
+<button class="btn btn2" onclick="addLine()">➕ Add Item</button>
+<div class="form" style="grid-template-columns:1fr 1fr;margin-top:1rem">
+<div class="form-group"><label>Labor Rate ($/hr)</label><input id="laborRate" type="number" value="75"></div>
+<div class="form-group"><label>Markup (%)</label><input id="markup" type="number" value="30"></div>
+</div>
+<div class="total">
+<div class="total-row"><span>Labor Subtotal</span><span id="laborTotal">$0</span></div>
+<div class="total-row"><span>Materials Subtotal</span><span id="matTotal">$0</span></div>
+<div class="total-row"><span>Markup</span><span id="markTotal">$0</span></div>
+<div class="total-row final"><span>TOTAL</span><span id="grandTotal">$0</span></div>
+</div>
+<button class="btn" style="width:100%;margin-top:1rem" onclick="saveQuote()">💾 Save Quote</button>
+</div>
+<div class="quote-card">
+<h3>Saved Quotes</h3>
+<div class="saved-list" id="savedList"></div>
+</div>
+</div>
+</div>
+</div>
+<script>
+// DATA
+var tasks = [];
+var quotes = [];
+var lines = [{desc: 'Labor', qty: 1, rate: 75, type: 'labor'}];
 
-  <script>
-    // State
-    let tasks = [];
-    let selectedPreds = [];
-    
-    // Load from localStorage
-    const saved = localStorage.getItem('buildpath-tasks');
-    if (saved) {
-      try {
-        tasks = JSON.parse(saved);
-      } catch (e) {}
-    }
-    
-    // CPM Calculation
-    function calculateCPM() {
-      if (tasks.length === 0) return [];
-      
-      const taskMap = new Map(tasks.map(t => [t.id, { ...t }]));
-      const sorted = Array.from(taskMap.values());
-      
-      // Forward pass
-      const processed = new Set();
-      let iterations = 0;
-      
-      while (processed.size < sorted.length && iterations < 100) {
-        for (const task of sorted) {
-          if (processed.has(task.id)) continue;
-          
-          let canProc = true;
-          let maxEF = 0;
-          
-          for (const predId of task.predecessor) {
-            const pred = taskMap.get(predId);
-            if (!pred || !processed.has(predId)) {
-              canProc = false;
-              break;
-            }
-            maxEF = Math.max(maxEF, pred.earlyFinish);
-          }
-          
-          if (canProc || task.predecessor.length === 0) {
-            task.earlyStart = maxEF;
-            task.earlyFinish = task.earlyStart + task.duration;
-            processed.add(task.id);
-          }
-        }
-        iterations++;
-      }
-      
-      // Project duration
-      const projDur = Math.max(...Array.from(taskMap.values()).map(t => t.earlyFinish), 0);
-      
-      // Backward pass
-      processed.clear();
-      const reversed = Array.from(taskMap.values()).reverse();
-      iterations = 0;
-      
-      while (processed.size < sorted.length && iterations < 100) {
-        for (const task of reversed) {
-          if (processed.has(task.id)) continue;
-          
-          const successors = Array.from(taskMap.values()).filter(t => 
-            t.predecessor.includes(task.id)
-          );
-          
-          let canProc = true;
-          let minLS = projDur;
-          
-          if (successors.length === 0) {
-            task.lateFinish = projDur;
-          } else {
-            for (const succ of successors) {
-              if (!processed.has(succ.id)) {
-                canProc = false;
-                break;
-              }
-              minLS = Math.min(minLS, succ.lateStart);
-            }
-            if (canProc) task.lateFinish = minLS;
-          }
-          
-          if (canProc) {
-            task.lateStart = task.lateFinish - task.duration;
-            task.float = task.lateStart - task.earlyStart;
-            task.isCritical = task.float === 0;
-            processed.add(task.id);
-          }
-        }
-        iterations++;
-      }
-      
-      return Array.from(taskMap.values());
-    }
-    
-    // Render
-    function render() {
-      const calcTasks = calculateCPM();
-      const projDur = Math.max(...calcTasks.map(t => t.earlyFinish), 0);
-      
-      // Stats
-      document.getElementById('totalDuration').textContent = projDur;
-      document.getElementById('totalTasks').textContent = calcTasks.length;
-      document.getElementById('critTasks').textContent = calcTasks.filter(t => t.isCritical).length;
-      document.getElementById('floatTasks').textContent = calcTasks.filter(t => t.float > 0).length;
-      document.getElementById('totalFloat').textContent = calcTasks.reduce((s, t) => s + t.float, 0) + 'd';
-      
-      // Pred section
-      const predSection = document.getElementById('predSection');
-      const predList = document.getElementById('predList');
-      if (tasks.length > 0) {
-        predSection.classList.remove('hidden');
-        predList.innerHTML = tasks.map(t => 
-          `<button class="pred-btn ${selectedPreds.includes(t.id) ? 'selected' : ''}" onclick="togglePred('${t.id}')">${selectedPreds.includes(t.id) ? '✓' : '+'} ${t.name}</button>`
-        ).join('');
-      } else {
-        predSection.classList.add('hidden');
-      }
-      
-      // Table
-      const tbody = document.getElementById('taskTableBody');
-      const emptyState = document.getElementById('emptyState');
-      
-      if (calcTasks.length === 0) {
-        tbody.innerHTML = '';
-        emptyState.classList.remove('hidden');
-      } else {
-        emptyState.classList.add('hidden');
-        tbody.innerHTML = calcTasks.map(t => {
-          const predTags = t.predecessor.map(pid => {
-            const pred = calcTasks.find(x => x.id === pid);
-            return pred ? `<span class="pred-tag">${pred.name}</span>` : '';
-          }).join('');
-          
-          return `
-            <tr class="${t.isCritical ? 'crit-row' : ''}">
-              <td><input type="text" class="task-name-input" value="${t.name}" onchange="updateTaskName('${t.id}', this.value)"></td>
-              <td><input type="number" class="task-dur-input" value="${t.duration}" min="1" onchange="updateTaskDur('${t.id}', this.value)"></td>
-              <td><div class="pred-tags">${predTags || '<span style="opacity:0.3">-</span>'}</div></td>
-              <td style="text-align:center;opacity:0.6">${t.earlyStart}</td>
-              <td style="text-align:center;opacity:0.6">${t.earlyFinish}</td>
-              <td style="text-align:center;opacity:0.6">${t.lateStart}</td>
-              <td style="text-align:center;opacity:0.6">${t.lateFinish}</td>
-              <td style="text-align:center" class="${t.float > 0 ? 'text-emerald' : ''}">${t.float}</td>
-              <td style="text-align:center"><span class="badge ${t.isCritical ? 'badge-crit' : 'badge-norm'}">${t.isCritical ? 'Critical' : 'Normal'}</span></td>
-              <td><button class="delete-btn" onclick="deleteTask('${t.id}')">✕</button></td>
-            </tr>
-          `;
-        }).join('');
-      }
-      
-      // Gantt
-      const ganttContainer = document.getElementById('ganttContainer');
-      if (calcTasks.length === 0) {
-        ganttContainer.innerHTML = '<p style="opacity:0.4;text-align:center;padding:2rem;">Add tasks to see the Gantt chart</p>';
-      } else {
-        const sorted = [...calcTasks].sort((a, b) => a.earlyStart - b.earlyStart);
-        const maxDay = projDur + 1;
-        
-        let html = `<div class="gantt-header">`;
-        for (let i = 0; i < maxDay; i++) {
-          html += `<div class="gantt-day">${i}</div>`;
-        }
-        html += '</div>';
-        
-        for (const t of sorted) {
-          const left = (t.earlyStart / maxDay) * 100;
-          const width = (t.duration / maxDay) * 100;
-          
-          html += `
-            <div class="gantt-row">
-              <div class="gantt-label">${t.name}</div>
-              <div class="gantt-bar-container">
-                <div class="gantt-grid">
-                  ${Array(maxDay).fill(0).map(() => '<div class="gantt-grid-cell"></div>').join('')}
-                </div>
-                <div class="gantt-bar ${t.isCritical ? 'crit' : 'norm'}" style="left:${left}%;width:${width}%;">${t.duration}d</div>
-              </div>
-            </div>
-          `;
-        }
-        ganttContainer.innerHTML = html;
-      }
-      
-      // Timeline
-      const timelineContainer = document.getElementById('timelineContainer');
-      const summaryGrid = document.getElementById('summaryGrid');
-      
-      if (calcTasks.length === 0) {
-        timelineContainer.innerHTML = '<p style="opacity:0.4;text-align:center;padding:2rem;">Add tasks to see the timeline</p>';
-        summaryGrid.style.display = 'none';
-      } else {
-        const sorted = [...calcTasks].sort((a, b) => a.earlyStart - b.earlyStart);
-        
-        timelineContainer.innerHTML = '<div class="timeline">' + sorted.map((t, i) => `
-          <div class="timeline-item ${t.isCritical ? 'crit' : ''}">
-            <div class="timeline-num ${t.isCritical ? 'crit' : 'norm'}">${i + 1}</div>
-            <div class="timeline-info">
-              <div class="timeline-name">${t.name}</div>
-              <div class="timeline-dates">Day ${t.earlyStart} → Day ${t.earlyFinish} (${t.duration} days)</div>
-            </div>
-            ${t.isCritical ? '<span class="timeline-badge badge-crit">Critical</span>' : t.float > 0 ? `<span class="timeline-badge badge-float">Float: ${t.float}d</span>` : ''}
-          </div>
-        `).join('') + '</div>';
-        
-        // Summary
-        summaryGrid.style.display = 'grid';
-        const critTasks = calcTasks.filter(t => t.isCritical);
-        const floatTasks = calcTasks.filter(t => t.float > 0);
-        
-        document.getElementById('critList').innerHTML = critTasks.map(t => `<div>→ ${t.name}</div>`).join('') || '<div style="opacity:0.3">No critical tasks</div>';
-        document.getElementById('floatList').innerHTML = floatTasks.map(t => `<div>→ ${t.name} (+${t.float}d)</div>`).join('') || '<div style="opacity:0.3">No float available</div>';
-      }
-      
-      // Save
-      localStorage.setItem('buildpath-tasks', JSON.stringify(tasks));
-    }
-    
-    // Actions
-    function addTask() {
-      const name = document.getElementById('newTaskName').value.trim();
-      const duration = parseInt(document.getElementById('newTaskDuration').value) || 1;
-      
-      if (!name) return;
-      
-      tasks.push({
-        id: 'task-' + Date.now(),
-        name,
-        duration,
-        predecessor: [...selectedPreds],
-        earlyStart: 0, earlyFinish: 0,
-        lateStart: 0, lateFinish: 0,
-        float: 0, isCritical: false
+// LOAD
+var s = localStorage.getItem('bpTasks');
+if (s) { try { tasks = JSON.parse(s); } catch(e) {} }
+var q = localStorage.getItem('bpQuotes');
+if (q) { try { quotes = JSON.parse(q); } catch(e) {} }
+
+// CPM CALC
+function cpm() {
+  if (tasks.length === 0) return [];
+  var map = {};
+  tasks.forEach(function(t) { map[t.id] = Object.assign({}, t); });
+  var arr = Object.keys(map).map(function(k) { return map[k]; });
+  var done = new Set();
+  var iter = 0;
+  while (done.size < arr.length && iter < 100) {
+    arr.forEach(function(t) {
+      if (done.has(t.id)) return;
+      var can = true;
+      var maxEF = 0;
+      (t.pred || []).forEach(function(pid) {
+        if (!map[pid] || !done.has(pid)) { can = false; }
+        else { maxEF = Math.max(maxEF, map[pid].ef); }
       });
-      
-      document.getElementById('newTaskName').value = '';
-      selectedPreds = [];
-      render();
-    }
-    
-    function deleteTask(id) {
-      tasks = tasks.filter(t => t.id !== id).map(t => ({
-        ...t,
-        predecessor: t.predecessor.filter(p => p !== id)
-      }));
-      render();
-    }
-    
-    function togglePred(id) {
-      if (selectedPreds.includes(id)) {
-        selectedPreds = selectedPreds.filter(p => p !== id);
-      } else {
-        selectedPreds.push(id);
+      if (can || !(t.pred && t.pred.length)) {
+        t.es = maxEF;
+        t.ef = t.es + t.duration;
+        done.add(t.id);
       }
-      render();
-    }
-    
-    function updateTaskName(id, name) {
-      const task = tasks.find(t => t.id === id);
-      if (task) task.name = name;
-      localStorage.setItem('buildpath-tasks', JSON.stringify(tasks));
-    }
-    
-    function updateTaskDur(id, dur) {
-      const task = tasks.find(t => t.id === id);
-      if (task) task.duration = parseInt(dur) || 1;
-      render();
-    }
-    
-    function loadExample() {
-      if (!confirm('Load example project? This will replace current tasks.')) return;
-      
-      tasks = [
-        { id: 't1', name: 'Site Preparation', duration: 3, predecessor: [], earlyStart: 0, earlyFinish: 0, lateStart: 0, lateFinish: 0, float: 0, isCritical: false },
-        { id: 't2', name: 'Foundation', duration: 5, predecessor: ['t1'], earlyStart: 0, earlyFinish: 0, lateStart: 0, lateFinish: 0, float: 0, isCritical: false },
-        { id: 't3', name: 'Framing', duration: 7, predecessor: ['t2'], earlyStart: 0, earlyFinish: 0, lateStart: 0, lateFinish: 0, float: 0, isCritical: false },
-        { id: 't4', name: 'Electrical', duration: 4, predecessor: ['t3'], earlyStart: 0, earlyFinish: 0, lateStart: 0, lateFinish: 0, float: 0, isCritical: false },
-        { id: 't5', name: 'Plumbing', duration: 4, predecessor: ['t3'], earlyStart: 0, earlyFinish: 0, lateStart: 0, lateFinish: 0, float: 0, isCritical: false },
-        { id: 't6', name: 'HVAC', duration: 3, predecessor: ['t4', 't5'], earlyStart: 0, earlyFinish: 0, lateStart: 0, lateFinish: 0, float: 0, isCritical: false },
-        { id: 't7', name: 'Interior Finishes', duration: 6, predecessor: ['t6'], earlyStart: 0, earlyFinish: 0, lateStart: 0, lateFinish: 0, float: 0, isCritical: false },
-        { id: 't8', name: 'Final Inspection', duration: 1, predecessor: ['t7'], earlyStart: 0, earlyFinish: 0, lateStart: 0, lateFinish: 0, float: 0, isCritical: false },
-      ];
-      render();
-    }
-    
-    function clearProject() {
-      if (!confirm('Clear all tasks?')) return;
-      tasks = [];
-      selectedPreds = [];
-      render();
-    }
-    
-    // Tabs
-    document.querySelectorAll('.tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.content').forEach(c => c.classList.add('hidden'));
-        tab.classList.add('active');
-        document.getElementById('tab-' + tab.dataset.tab).classList.remove('hidden');
-      });
     });
-    
-    // Init
-    render();
-  </script>
+    iter++;
+  }
+  var projDur = Math.max.apply(null, Object.values(map).map(function(t) { return t.ef; }).concat([0]));
+  done.clear();
+  var rev = Object.values(map).reverse();
+  iter = 0;
+  while (done.size < arr.length && iter < 100) {
+    rev.forEach(function(t) {
+      if (done.has(t.id)) return;
+      var succs = Object.values(map).filter(function(s) { return (s.pred || []).includes(t.id); });
+      var can = true;
+      var minLS = projDur;
+      if (succs.length === 0) { t.lf = projDur; }
+      else {
+        succs.forEach(function(s) {
+          if (!done.has(s.id)) { can = false; }
+          else { minLS = Math.min(minLS, s.ls); }
+        });
+        if (can) t.lf = minLS;
+      }
+      if (can) {
+        t.ls = t.lf - t.duration;
+        t.float = t.ls - t.es;
+        t.isCrit = t.float === 0;
+        done.add(t.id);
+      }
+    });
+    iter++;
+  }
+  return Object.values(map);
+}
+
+// RENDER TASKS
+function render() {
+  var ct = cpm();
+  document.getElementById('totalTasks').textContent = ct.length;
+  document.getElementById('totalDays').textContent = Math.max.apply(null, ct.map(function(t) { return t.ef; }).concat([0]));
+  document.getElementById('critTasks').textContent = ct.filter(function(t) { return t.isCrit; }).length;
+  document.getElementById('floatTasks').textContent = ct.filter(function(t) { return t.float > 0; }).length;
+  
+  var tbody = document.getElementById('taskTable');
+  var empty = document.getElementById('emptyState');
+  if (ct.length === 0) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+  } else {
+    empty.style.display = 'none';
+    tbody.innerHTML = ct.map(function(t) {
+      return '<tr' + (t.isCrit ? ' style="background:rgba(239,68,68,0.05)"' : '') + '>' +
+        '<td><input value="' + t.name + '" onchange="updateName(\'' + t.id + '\',this.value)"></td>' +
+        '<td><input class="num" type="number" value="' + t.duration + '" min="1" onchange="updateDur(\'' + t.id + '\',this.value)"></td>' +
+        '<td class="es">' + t.es + '</td><td class="ef">' + t.ef + '</td><td class="ls">' + t.ls + '</td><td class="lf">' + t.lf + '</td><td class="flt">' + t.float + '</td>' +
+        '<td><span class="badge ' + (t.isCrit ? 'badge-crit' : 'badge-norm') + '">' + (t.isCrit ? 'Critical' : 'Normal') + '</span></td>' +
+        '<td><button class="del" onclick="deleteTask(\'' + t.id + '\')">✕</button></td></tr>';
+    }).join('');
+  }
+  localStorage.setItem('bpTasks', JSON.stringify(tasks));
+}
+function addTask() {
+  var name = document.getElementById('taskName').value.trim();
+  var dur = parseInt(document.getElementById('taskDays').value) || 1;
+  if (!name) return;
+  tasks.push({id: 't' + Date.now(), name: name, duration: dur, pred: []});
+  document.getElementById('taskName').value = '';
+  render();
+}
+function deleteTask(id) {
+  tasks = tasks.filter(function(t) { return t.id !== id; });
+  tasks.forEach(function(t) { t.pred = (t.pred || []).filter(function(p) { return p !== id; }); });
+  render();
+}
+function updateName(id, val) {
+  var t = tasks.find(function(x) { return x.id === id; });
+  if (t) t.name = val;
+  localStorage.setItem('bpTasks', JSON.stringify(tasks));
+}
+function updateDur(id, val) {
+  var t = tasks.find(function(x) { return x.id === id; });
+  if (t) t.duration = parseInt(val) || 1;
+  render();
+}
+
+// QUOTES
+function renderLines() {
+  var container = document.getElementById('lineItems');
+  container.innerHTML = lines.map(function(l, i) {
+    return '<div class="line-item">' +
+      '<input placeholder="Description" value="' + l.desc + '" onchange="upLine(' + i + ',\'desc\',this.value)">' +
+      '<input type="number" placeholder="Qty" value="' + l.qty + '" onchange="upLine(' + i + ',\'qty\',this.value)">' +
+      '<input type="number" placeholder="Rate" value="' + l.rate + '" onchange="upLine(' + i + ',\'rate\',this.value)">' +
+      '<input disabled value="' + (l.qty * l.rate) + '">' +
+      '<button class="del" onclick="delLine(' + i + ')">✕</button></div>';
+  }).join('');
+  calcTotal();
+}
+function addLine() { lines.push({desc: '', qty: 1, rate: 0, type: 'material'}); renderLines(); }
+function delLine(i) { lines.splice(i, 1); renderLines(); }
+function upLine(i, f, v) { lines[i][f] = f === 'desc' ? v : parseFloat(v) || 0; renderLines(); }
+function calcTotal() {
+  var labor = lines.filter(function(l) { return l.type === 'labor'; }).reduce(function(s, l) { return s + l.qty * l.rate; }, 0);
+  var mat = lines.filter(function(l) { return l.type === 'material'; }).reduce(function(s, l) { return s + l.qty * l.rate; }, 0);
+  var mark = parseFloat(document.getElementById('markup').value) || 0;
+  var markAmt = (labor + mat) * mark / 100;
+  var total = labor + mat + markAmt;
+  document.getElementById('laborTotal').textContent = '$' + labor.toLocaleString();
+  document.getElementById('matTotal').textContent = '$' + mat.toLocaleString();
+  document.getElementById('markTotal').textContent = '$' + markAmt.toLocaleString();
+  document.getElementById('grandTotal').textContent = '$' + total.toLocaleString();
+  return total;
+}
+function saveQuote() {
+  var total = calcTotal();
+  var q = {
+    id: Date.now(),
+    client: document.getElementById('qClient').value,
+    project: document.getElementById('qProject').value,
+    address: document.getElementById('qAddress').value,
+    email: document.getElementById('qEmail').value,
+    phone: document.getElementById('qPhone').value,
+    laborRate: document.getElementById('laborRate').value,
+    markup: document.getElementById('markup').value,
+    lines: JSON.parse(JSON.stringify(lines)),
+    total: total,
+    date: new Date().toLocaleDateString()
+  };
+  quotes.push(q);
+  localStorage.setItem('bpQuotes', JSON.stringify(quotes));
+  renderSaved();
+  // Clear form
+  document.getElementById('qClient').value = '';
+  document.getElementById('qProject').value = '';
+  document.getElementById('qAddress').value = '';
+  document.getElementById('qEmail').value = '';
+  document.getElementById('qPhone').value = '';
+  lines = [{desc: 'Labor', qty: 1, rate: 75, type: 'labor'}];
+  renderLines();
+}
+function renderSaved() {
+  var list = document.getElementById('savedList');
+  if (quotes.length === 0) {
+    list.innerHTML = '<p style="text-align:center;opacity:0.5;padding:2rem">No saved quotes</p>';
+  } else {
+    list.innerHTML = quotes.map(function(q) {
+      return '<div class="saved-item">' +
+        '<div class="id">Quote #' + q.id + ' - ' + q.date + '</div>' +
+        '<div class="client">' + q.client + '</div>' +
+        '<div class="amt">$' + q.total.toLocaleString() + '</div></div>';
+    }).join('');
+  }
+}
+
+// NAV
+function show(page) {
+  document.querySelectorAll('.nav-btn').forEach(function(b) { b.classList.remove('active'); });
+  document.querySelector('[onclick="show(\'' + page + '\')"]').classList.add('active');
+  document.querySelectorAll('.section').forEach(function(s) { s.classList.remove('active'); });
+  document.getElementById(page).classList.add('active');
+  if (page === 'quotes') renderSaved();
+}
+function showTab(tab) {
+  document.querySelectorAll('#scheduler .tab').forEach(function(b) { b.classList.remove('active'); });
+  document.querySelector('[onclick="showTab(\'' + tab + '\')"]').classList.add('active');
+  document.querySelectorAll('#scheduler .section').forEach(function(s) { s.classList.remove('active'); });
+  document.getElementById(tab).classList.add('active');
+}
+
+// INIT
+render();
+renderLines();
+renderSaved();
+</script>
 </body>
 </html>
