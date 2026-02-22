@@ -3,19 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>BuildPro - All-in-One Construction Platform</title>
+<title>BuildPro - Construction Management</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-:root {
-  --primary: #10b981;
-  --primary-dark: #059669;
-  --bg: #0a0a0f;
-  --bg2: #111118;
-  --border: rgba(255,255,255,0.1);
-  --text: #fff;
-  --text2: rgba(255,255,255,0.6);
-}
+:root { --primary: #10b981; --primary-dark: #059669; --bg: #0a0a0f; --bg2: #111118; --border: rgba(255,255,255,0.1); --text: #fff; --text2: rgba(255,255,255,0.6); }
 body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 .app { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
 .sidebar { background: var(--bg2); border-right: 1px solid var(--border); padding: 1.5rem; }
@@ -27,15 +19,17 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
 .nav-btn:hover { background: rgba(255,255,255,0.05); color: var(--text); }
 .nav-btn.active { background: rgba(16,185,129,0.15); border-color: rgba(16,185,129,0.3); color: var(--primary); }
 .main { padding: 2rem; overflow-y: auto; }
-.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
 .header h2 { font-size: 1.75rem; }
+.weather-badge { display: flex; align-items: center; gap: 0.5rem; background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 0.5rem 1rem; font-size: 0.9rem; }
+.weather-badge .icon { font-size: 1.5rem; }
 .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
 .stat { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; }
 .stat .val { font-size: 1.5rem; font-weight: 700; }
 .stat .lbl { font-size: 0.7rem; color: var(--text2); text-transform: uppercase; }
 .section { display: none; }
 .section.active { display: block; }
-.tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
+.tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; flex-wrap: wrap; }
 .tab { padding: 0.5rem 1rem; background: 0; border: 0; color: var(--text2); cursor: pointer; font-size: 0.9rem; border-bottom: 2px solid transparent; }
 .tab:hover, .tab.active { color: var(--text); border-bottom-color: var(--primary); }
 .card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem; }
@@ -52,35 +46,38 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
 .tbl td { padding: 0.75rem; border-top: 1px solid var(--border); }
 .tbl input { background: 0; border: 0; color: var(--text); width: 100%; }
 .tbl .num { width: 50px; text-align: center; background: rgba(255,255,255,0.05); border-radius: 4px; }
-.es { color: #3b82f6; }
-.ef { color: #8b5cf6; }
-.ls { color: #f59e0b; }
-.lf { color: #ec4899; }
-.flt { color: var(--primary); }
+.es { color: #3b82f6; } .ef { color: #8b5cf6; } .ls { color: #f59e0b; } .lf { color: #ec4899; } .flt { color: var(--primary); }
 .badge { padding: 0.2rem 0.5rem; border-radius: 100px; font-size: 0.7rem; }
 .badge-crit { background: rgba(239,68,68,0.2); color: #f87171; }
 .badge-norm { background: rgba(16,185,129,0.2); color: var(--primary); }
 .del { background: 0; border: 0; color: #f87171; cursor: pointer; font-size: 1.1rem; }
 .empty { padding: 2rem; text-align: center; color: var(--text2); }
-.quote-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-.quote-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
-.quote-card h3 { margin-bottom: 1rem; }
-.line-items { margin-bottom: 1rem; }
-.line-item { display: grid; grid-template-columns: 2fr 80px 80px 80px auto; gap: 0.5rem; margin-bottom: 0.5rem; align-items: end; }
-.line-item input { padding: 0.5rem; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); }
-.line-item .del { padding: 0.5rem; background: rgba(239,68,68,0.2); border-radius: 6px; }
-.total { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); border-radius: 8px; padding: 1rem; margin-top: 1rem; }
-.total-row { display: flex; justify-content: space-between; padding: 0.3rem 0; }
-.total-row.final { font-size: 1.2rem; font-weight: 700; color: var(--primary); border-top: 1px solid var(--border); padding-top: 0.5rem; margin-top: 0.5rem; }
-.saved-list { max-height: 400px; overflow-y: auto; }
-.saved-item { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; margin-bottom: 0.5rem; cursor: pointer; }
-.saved-item:hover { border-color: var(--primary); }
-.saved-item .id { font-size: 0.75rem; color: var(--text2); }
-.saved-item .client { font-weight: 600; margin: 0.25rem 0; }
-.saved-item .amt { color: var(--primary); font-weight: 600; }
 .legend { font-size: 0.75rem; color: var(--text2); margin-bottom: 1rem; }
 .legend span { margin-right: 1rem; }
 .legend b { background: rgba(255,255,255,0.1); padding: 0.1rem 0.3rem; border-radius: 3px; margin-right: 0.2rem; }
+/* History */
+.history-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem; margin-bottom: 0.75rem; }
+.history-item .date { font-size: 0.75rem; color: var(--text2); }
+.history-item .action { font-weight: 500; margin: 0.25rem 0; }
+.history-item .details { font-size: 0.85rem; color: var(--text2); }
+/* Weather */
+.weather-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.75rem; margin-bottom: 1rem; }
+.weather-day { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem; text-align: center; }
+.weather-day .icon { font-size: 2rem; margin-bottom: 0.5rem; }
+.weather-day .day { font-size: 0.75rem; color: var(--text2); }
+.weather-day .temp { font-weight: 700; font-size: 1.25rem; }
+.weather-day .cond { font-size: 0.75rem; color: var(--text2); }
+.weather-day.workable { border-color: rgba(16,185,129,0.3); }
+.weather-day.unworkable { border-color: rgba(239,68,68,0.3); }
+/* Projects */
+.project-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem; cursor: pointer; transition: all 0.2s; }
+.project-card:hover { border-color: var(--primary); }
+.project-card .name { font-weight: 600; font-size: 1.1rem; margin-bottom: 0.5rem; }
+.project-card .info { display: flex; gap: 1rem; font-size: 0.85rem; color: var(--text2); }
+.project-card .status { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 100px; font-size: 0.75rem; margin-top: 0.5rem; }
+.project-card .status.active { background: rgba(16,185,129,0.2); color: var(--primary); }
+.project-card .status.completed { background: rgba(59,130,246,0.2); color: #3b82f6; }
+.project-card .status.on-hold { background: rgba(245,158,11,0.2); color: #f59e0b; }
 </style>
 </head>
 <body>
@@ -90,12 +87,20 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
 <div class="nav">
 <button class="nav-btn active" onclick="show('scheduler')">📅 Scheduler</button>
 <button class="nav-btn" onclick="show('quotes')">📝 Quotes</button>
+<button class="nav-btn" onclick="show('projects')">📋 Projects</button>
+<button class="nav-btn" onclick="show('history')">📜 History</button>
 </div>
 </div>
 <div class="main">
 <!-- SCHEDULER -->
 <div id="scheduler" class="section active">
-<div class="header"><h2>📅 Project Scheduler</h2></div>
+<div class="header">
+<h2>📅 Project Scheduler</h2>
+<div class="weather-badge">
+<span class="icon">☀️</span>
+<span id="weatherNow">72°F Sunny</span>
+</div>
+</div>
 <div class="stats">
 <div class="stat"><div class="val" id="totalTasks">0</div><div class="lbl">Tasks</div></div>
 <div class="stat"><div class="val" id="totalDays">0</div><div class="lbl">Days</div></div>
@@ -105,7 +110,7 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
 <div class="tabs">
 <button class="tab active" onclick="showTab('tasks')">Tasks</button>
 <button class="tab" onclick="showTab('gantt')">Gantt</button>
-<button class="tab" onclick="showTab('timeline')">Timeline</button>
+<button class="tab" onclick="showTab('weather')">🌤️ Weather</button>
 </div>
 <div id="tasks" class="section active">
 <div class="legend"><span><b>ES</b>Early Start</span><span><b>EF</b>Early Finish</span><span><b>LS</b>Late Start</span><span><b>LF</b>Late Finish</span><span><b>Float</b>Slack</span></div>
@@ -121,62 +126,92 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
 <table><thead><tr><th>Task</th><th>Days</th><th>ES</th><th>EF</th><th>LS</th><th>LF</th><th>Float</th><th>Status</th><th></th></tr></thead>
 <tbody id="taskTable"></tbody>
 </table>
-<div class="empty" id="emptyState">No tasks yet. Add a task above.</div>
+<div class="empty" id="emptyState">No tasks. Add one above.</div>
 </div>
 </div>
 <div id="gantt" class="section"><div class="tbl" id="ganttChart"></div></div>
-<div id="timeline" class="section" id="timelineChart"></div>
+<div id="weather" class="section">
+<div class="card">
+<h3>🌤️ 5-Day Weather Forecast</h3>
+<p style="font-size:0.85rem;color:var(--text2);margin-bottom:1rem">Plan outdoor tasks around weather. Green = workable, Red = potential delays.</p>
+<div class="weather-grid" id="weatherGrid"></div>
+</div>
+<div class="card">
+<h3>⚠️ Weather Alerts</h3>
+<div id="weatherAlerts"></div>
+</div>
+</div>
 </div>
 <!-- QUOTES -->
 <div id="quotes" class="section">
 <div class="header"><h2>📝 Quote Builder</h2></div>
-<div class="quote-grid">
-<div class="quote-card">
+<div class="card">
 <h3>New Quote</h3>
 <div class="form" style="grid-template-columns:1fr 1fr">
 <div class="form-group"><label>Client</label><input id="qClient" placeholder="Client name"></div>
 <div class="form-group"><label>Project</label><input id="qProject" placeholder="Project name"></div>
 </div>
 <div class="form-group" style="margin-bottom:1rem"><label>Address</label><input id="qAddress" placeholder="Project address"></div>
-<div class="form" style="grid-template-columns:1fr 1fr">
-<div class="form-group"><label>Email</label><input id="qEmail" placeholder="client@email.com"></div>
-<div class="form-group"><label>Phone</label><input id="qPhone" placeholder="(555) 123-4567"></div>
-</div>
-<h4 style="margin:1rem 0">Line Items</h4>
-<div class="line-items" id="lineItems"></div>
+<div id="lineItems"></div>
 <button class="btn btn2" onclick="addLine()">➕ Add Item</button>
 <div class="form" style="grid-template-columns:1fr 1fr;margin-top:1rem">
 <div class="form-group"><label>Labor Rate ($/hr)</label><input id="laborRate" type="number" value="75"></div>
 <div class="form-group"><label>Markup (%)</label><input id="markup" type="number" value="30"></div>
 </div>
-<div class="total">
-<div class="total-row"><span>Labor Subtotal</span><span id="laborTotal">$0</span></div>
-<div class="total-row"><span>Materials Subtotal</span><span id="matTotal">$0</span></div>
-<div class="total-row"><span>Markup</span><span id="markTotal">$0</span></div>
-<div class="total-row final"><span>TOTAL</span><span id="grandTotal">$0</span></div>
+<div style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);border-radius:8px;padding:1rem;margin-top:1rem">
+<div style="display:flex;justify-content:space-between;padding:0.3rem 0"><span>Labor</span><span id="laborTotal">$0</span></div>
+<div style="display:flex;justify-content:space-between;padding:0.3rem 0"><span>Materials</span><span id="matTotal">$0</span></div>
+<div style="display:flex;justify-content:space-between;padding:0.3rem 0"><span>Markup</span><span id="markTotal">$0</span></div>
+<div style="display:flex;justify-content:space-between;padding:0.5rem 0 0 0;border-top:1px solid rgba(255,255,255,0.1);font-weight:700;font-size:1.2rem;color:var(--primary)"><span>TOTAL</span><span id="grandTotal">$0</span></div>
 </div>
 <button class="btn" style="width:100%;margin-top:1rem" onclick="saveQuote()">💾 Save Quote</button>
 </div>
-<div class="quote-card">
-<h3>Saved Quotes</h3>
-<div class="saved-list" id="savedList"></div>
 </div>
+<!-- PROJECTS -->
+<div id="projects" class="section">
+<div class="header"><h2>📋 Projects</h2><button class="btn" onclick="newProject()">➕ New Project</button></div>
+<div id="projectList"></div>
 </div>
+<!-- HISTORY -->
+<div id="history" class="section">
+<div class="header"><h2>📜 Activity History</h2></div>
+<div id="historyList"></div>
 </div>
 </div>
 <script>
 // DATA
 var tasks = [];
 var quotes = [];
+var projects = [];
+var history = [];
 var lines = [{desc: 'Labor', qty: 1, rate: 75, type: 'labor'}];
+var weatherData = [
+  {day: 'Mon', icon: '☀️', temp: 72, cond: 'Sunny', workable: true},
+  {day: 'Tue', icon: '⛅', temp: 68, cond: 'Partly Cloudy', workable: true},
+  {day: 'Wed', icon: '🌧️', temp: 58, cond: 'Rain', workable: false},
+  {day: 'Thu', icon: '☀️', temp: 70, cond: 'Sunny', workable: true},
+  {day: 'Fri', icon: '⛅', temp: 65, cond: 'Partly Cloudy', workable: true}
+];
 
 // LOAD
 var s = localStorage.getItem('bpTasks');
 if (s) { try { tasks = JSON.parse(s); } catch(e) {} }
 var q = localStorage.getItem('bpQuotes');
 if (q) { try { quotes = JSON.parse(q); } catch(e) {} }
+var p = localStorage.getItem('bpProjects');
+if (p) { try { projects = JSON.parse(p); } catch(e) {} }
+var h = localStorage.getItem('bpHistory');
+if (h) { try { history = JSON.parse(h); } catch(e) {} }
 
-// CPM CALC
+// HISTORY
+function addHistory(action, details) {
+  history.unshift({time: new Date().toLocaleString(), action: action, details: details});
+  if (history.length > 50) history.pop();
+  localStorage.setItem('bpHistory', JSON.stringify(history));
+  renderHistory();
+}
+
+// CPM
 function cpm() {
   if (tasks.length === 0) return [];
   var map = {};
@@ -201,14 +236,14 @@ function cpm() {
     });
     iter++;
   }
-  var projDur = Math.max.apply(null, Object.values(map).map(function(t) { return t.ef; }).concat([0]));
+  var projDur = Math.max.apply(null, Object.keys(map).map(function(k) { return map[k].ef; }).concat([0]));
   done.clear();
-  var rev = Object.values(map).reverse();
+  var rev = Object.keys(map).map(function(k) { return map[k]; }).reverse();
   iter = 0;
   while (done.size < arr.length && iter < 100) {
     rev.forEach(function(t) {
       if (done.has(t.id)) return;
-      var succs = Object.values(map).filter(function(s) { return (s.pred || []).includes(t.id); });
+      var succs = Object.keys(map).map(function(k) { return map[k]; }).filter(function(s) { return (s.pred || []).includes(t.id); });
       var can = true;
       var minLS = projDur;
       if (succs.length === 0) { t.lf = projDur; }
@@ -228,7 +263,7 @@ function cpm() {
     });
     iter++;
   }
-  return Object.values(map);
+  return Object.keys(map).map(function(k) { return map[k]; });
 }
 
 // RENDER TASKS
@@ -263,34 +298,57 @@ function addTask() {
   if (!name) return;
   tasks.push({id: 't' + Date.now(), name: name, duration: dur, pred: []});
   document.getElementById('taskName').value = '';
+  addHistory('Task Added', name + ' (' + dur + ' days)');
   render();
 }
 function deleteTask(id) {
+  var t = tasks.find(function(x) { return x.id === id; });
   tasks = tasks.filter(function(t) { return t.id !== id; });
   tasks.forEach(function(t) { t.pred = (t.pred || []).filter(function(p) { return p !== id; }); });
+  if (t) addHistory('Task Deleted', t.name);
   render();
 }
 function updateName(id, val) {
   var t = tasks.find(function(x) { return x.id === id; });
-  if (t) t.name = val;
-  localStorage.setItem('bpTasks', JSON.stringify(tasks));
+  if (t) { t.name = val; localStorage.setItem('bpTasks', JSON.stringify(tasks)); }
 }
 function updateDur(id, val) {
   var t = tasks.find(function(x) { return x.id === id; });
-  if (t) t.duration = parseInt(val) || 1;
-  render();
+  if (t) { t.duration = parseInt(val) || 1; addHistory('Task Updated', t.name + ' duration changed'); render(); }
+}
+
+// WEATHER
+function renderWeather() {
+  var grid = document.getElementById('weatherGrid');
+  grid.innerHTML = weatherData.map(function(w) {
+    return '<div class="weather-day ' + (w.workable ? 'workable' : 'unworkable') + '">' +
+      '<div class="icon">' + w.icon + '</div>' +
+      '<div class="day">' + w.day + '</div>' +
+      '<div class="temp">' + w.temp + '°F</div>' +
+      '<div class="cond">' + w.cond + '</div></div>';
+  }).join('');
+  
+  var alerts = document.getElementById('weatherAlerts');
+  var rainy = weatherData.filter(function(w) { return !w.workable; });
+  if (rainy.length > 0) {
+    alerts.innerHTML = rainy.map(function(w) {
+      return '<div class="history-item"><div class="action">⚠️ ' + w.day + ': ' + w.cond + '</div><div class="details">Outdoor work may be delayed. Consider scheduling indoor tasks.</div></div>';
+    }).join('');
+  } else {
+    alerts.innerHTML = '<p style="color:var(--primary)">✓ No weather concerns for the next 5 days!</p>';
+  }
 }
 
 // QUOTES
 function renderLines() {
   var container = document.getElementById('lineItems');
   container.innerHTML = lines.map(function(l, i) {
-    return '<div class="line-item">' +
+    return '<div style="display:grid;grid-template-columns:2fr 80px 80px 80px auto;gap:0.5rem;margin-bottom:0.5rem;align-items:end">' +
       '<input placeholder="Description" value="' + l.desc + '" onchange="upLine(' + i + ',\'desc\',this.value)">' +
       '<input type="number" placeholder="Qty" value="' + l.qty + '" onchange="upLine(' + i + ',\'qty\',this.value)">' +
-      '<input type="number" placeholder="Rate" value="' + l.rate + '" onchange="upLine(' + i + ',\'rate\',this.value)">' +
-      '<input disabled value="' + (l.qty * l.rate) + '">' +
-      '<button class="del" onclick="delLine(' + i + ')">✕</button></div>';
+      '<input type="number" placeholder="$" value="' + l.rate + '" onchange="upLine(' + i + ',\'rate\',this.value)">' +
+      '<input disabled value="$' + (l.qty * l.rate) + '">' +
+      '<button style="background:rgba(239,68,68,0.2);border:0;border-radius:6px;color:#f87171;cursor:pointer;padding:0.5rem" onclick="delLine(' + i + ')">✕</button></div>';
   }).join('');
   calcTotal();
 }
@@ -316,36 +374,51 @@ function saveQuote() {
     client: document.getElementById('qClient').value,
     project: document.getElementById('qProject').value,
     address: document.getElementById('qAddress').value,
-    email: document.getElementById('qEmail').value,
-    phone: document.getElementById('qPhone').value,
-    laborRate: document.getElementById('laborRate').value,
-    markup: document.getElementById('markup').value,
-    lines: JSON.parse(JSON.stringify(lines)),
     total: total,
     date: new Date().toLocaleDateString()
   };
   quotes.push(q);
   localStorage.setItem('bpQuotes', JSON.stringify(quotes));
-  renderSaved();
-  // Clear form
+  addHistory('Quote Created', q.client + ' - $' + total.toLocaleString());
+  // Clear
   document.getElementById('qClient').value = '';
   document.getElementById('qProject').value = '';
   document.getElementById('qAddress').value = '';
-  document.getElementById('qEmail').value = '';
-  document.getElementById('qPhone').value = '';
   lines = [{desc: 'Labor', qty: 1, rate: 75, type: 'labor'}];
   renderLines();
 }
-function renderSaved() {
-  var list = document.getElementById('savedList');
-  if (quotes.length === 0) {
-    list.innerHTML = '<p style="text-align:center;opacity:0.5;padding:2rem">No saved quotes</p>';
+
+// PROJECTS
+function newProject() {
+  var name = prompt('Project name:');
+  if (!name) return;
+  projects.push({id: Date.now(), name: name, status: 'active', tasks: [], created: new Date().toLocaleDateString()});
+  localStorage.setItem('bpProjects', JSON.stringify(projects));
+  addHistory('Project Created', name);
+  renderProjects();
+}
+function renderProjects() {
+  var list = document.getElementById('projectList');
+  if (projects.length === 0) {
+    list.innerHTML = '<p style="text-align:center;opacity:0.5;padding:2rem">No projects yet</p>';
   } else {
-    list.innerHTML = quotes.map(function(q) {
-      return '<div class="saved-item">' +
-        '<div class="id">Quote #' + q.id + ' - ' + q.date + '</div>' +
-        '<div class="client">' + q.client + '</div>' +
-        '<div class="amt">$' + q.total.toLocaleString() + '</div></div>';
+    list.innerHTML = projects.map(function(p) {
+      return '<div class="project-card" onclick="openProject(\'' + p.id + '\')">' +
+        '<div class="name">' + p.name + '</div>' +
+        '<div class="info"><span>📅 ' + p.created + '</span><span>📋 ' + (p.tasks || []).length + ' tasks</span></div>' +
+        '<span class="status ' + p.status + '">' + p.status + '</span></div>';
+    }).join('');
+  }
+}
+
+// HISTORY
+function renderHistory() {
+  var list = document.getElementById('historyList');
+  if (history.length === 0) {
+    list.innerHTML = '<p style="text-align:center;opacity:0.5;padding:2rem">No history yet</p>';
+  } else {
+    list.innerHTML = history.map(function(h) {
+      return '<div class="history-item"><div class="date">' + h.time + '</div><div class="action">' + h.action + '</div><div class="details">' + h.details + '</div></div>';
     }).join('');
   }
 }
@@ -356,7 +429,8 @@ function show(page) {
   document.querySelector('[onclick="show(\'' + page + '\')"]').classList.add('active');
   document.querySelectorAll('.section').forEach(function(s) { s.classList.remove('active'); });
   document.getElementById(page).classList.add('active');
-  if (page === 'quotes') renderSaved();
+  if (page === 'projects') renderProjects();
+  if (page === 'history') renderHistory();
 }
 function showTab(tab) {
   document.querySelectorAll('#scheduler .tab').forEach(function(b) { b.classList.remove('active'); });
@@ -368,7 +442,9 @@ function showTab(tab) {
 // INIT
 render();
 renderLines();
-renderSaved();
+renderWeather();
+renderHistory();
+addHistory('Session Started', 'BuildPro loaded');
 </script>
 </body>
 </html>
