@@ -35,10 +35,12 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
 .card h3 { margin-bottom: 1rem; }
 .form { display: grid; grid-template-columns: 2fr 1fr auto; gap: 0.75rem; margin-bottom: 1rem; }
 .form-group label { display: block; font-size: 0.75rem; color: var(--text2); margin-bottom: 0.3rem; }
-.form-group input, .form-group select { width: 100%; padding: 0.6rem; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 0.9rem; }
+.form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.6rem; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 0.9rem; }
+.form-group textarea { resize: vertical; min-height: 80px; }
 .btn { padding: 0.6rem 1.25rem; background: var(--primary); color: #fff; border: 0; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 0.9rem; }
 .btn:hover { background: var(--primary-dark); }
 .btn2 { background: rgba(255,255,255,0.1); }
+.btn-danger { background: #ef4444; }
 .tbl { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; overflow-x: auto; }
 .tbl table { width: 100%; border-collapse: collapse; }
 .tbl th { text-align: left; padding: 0.75rem; background: rgba(255,255,255,0.03); color: var(--text2); font-size: 0.7rem; text-transform: uppercase; }
@@ -54,13 +56,14 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
 .legend { font-size: 0.75rem; color: var(--text2); margin-bottom: 1rem; }
 .legend span { margin-right: 1rem; }
 .legend b { background: rgba(255,255,255,0.1); padding: 0.1rem 0.3rem; border-radius: 3px; margin-right: 0.2rem; }
-/* History */
+.pred-selector { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem; }
+.pred-btn { padding: 0.25rem 0.5rem; background: var(--bg); border: 1px solid var(--border); border-radius: 4px; color: var(--text2); cursor: pointer; font-size: 0.75rem; }
+.pred-btn.selected { background: rgba(16,185,129,0.2); border-color: var(--primary); color: var(--primary); }
 .history-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem; margin-bottom: 0.75rem; }
 .history-item .date { font-size: 0.75rem; color: var(--text2); }
 .history-item .action { font-weight: 500; margin: 0.25rem 0; }
 .history-item .details { font-size: 0.85rem; color: var(--text2); }
-/* Weather */
-.weather-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.75rem; margin-bottom: 1rem; }
+.weather-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.75rem; }
 .weather-day { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem; text-align: center; }
 .weather-day .icon { font-size: 2rem; margin-bottom: 0.5rem; }
 .weather-day .day { font-size: 0.75rem; color: var(--text2); }
@@ -70,7 +73,6 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
 .weather-day.unworkable { border-color: rgba(239,68,68,0.3); }
 .location-select { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
 .location-select select { padding: 0.5rem; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); }
-/* Gantt */
 .gantt-container { overflow-x: auto; }
 .gantt-row { display: flex; align-items: center; border-bottom: 1px solid var(--border); min-height: 40px; }
 .gantt-label { width: 150px; padding: 0.5rem; font-size: 0.85rem; flex-shrink: 0; }
@@ -80,13 +82,27 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
 .gantt-bar.normal { background: linear-gradient(90deg, var(--primary), #34d399); }
 .gantt-grid { position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; }
 .gantt-cell { flex: 1; border-left: 1px solid rgba(255,255,255,0.05); }
-/* Projects */
-.project-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem; cursor: pointer; transition: all 0.2s; }
-.project-card:hover { border-color: var(--primary); }
-.project-card .name { font-weight: 600; font-size: 1.1rem; margin-bottom: 0.5rem; }
-.project-card .info { display: flex; gap: 1rem; font-size: 0.85rem; color: var(--text2); }
-.project-card .status { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 100px; font-size: 0.75rem; margin-top: 0.5rem; }
-.project-card .status.active { background: rgba(16,185,129,0.2); color: var(--primary); }
+.quote-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+@media (max-width: 900px) { .quote-grid { grid-template-columns: 1fr; } }
+.quote-section { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
+.quote-section h3 { margin-bottom: 1rem; }
+.line-item { display: grid; grid-template-columns: 1fr 80px 80px 80px auto; gap: 0.5rem; margin-bottom: 0.5rem; align-items: end; }
+.line-item input { padding: 0.5rem; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); }
+.line-item .del-btn { padding: 0.5rem; background: rgba(239,68,68,0.2); border: 0; border-radius: 6px; color: #f87171; cursor: pointer; }
+.total-box { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); border-radius: 8px; padding: 1rem; margin-top: 1rem; }
+.total-row { display: flex; justify-content: space-between; padding: 0.3rem 0; }
+.total-row.final { font-size: 1.2rem; font-weight: 700; color: var(--primary); border-top: 1px solid var(--border); padding-top: 0.5rem; margin-top: 0.5rem; }
+.saved-quotes { max-height: 500px; overflow-y: auto; }
+.saved-item { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; margin-bottom: 0.5rem; cursor: pointer; }
+.saved-item:hover { border-color: var(--primary); }
+.saved-item .id { font-size: 0.75rem; color: var(--text2); }
+.saved-item .client { font-weight: 600; margin: 0.25rem 0; }
+.saved-item .amt { color: var(--primary); font-weight: 600; }
+.actions { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
+.actions .btn { flex: 1; min-width: 120px; }
+.photos-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; margin-bottom: 1rem; }
+.photo-thumb { aspect-ratio: 1; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.photo-thumb img { max-width: 100%; max-height: 100%; object-fit: cover; }
 </style>
 </head>
 <body>
@@ -95,18 +111,15 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
 <div class="logo"><div class="logo-icon">🏗️</div><h1>BuildPro</h1></div>
 <div class="nav">
 <button class="nav-btn active" onclick="show('scheduler')">📅 Scheduler</button>
-<button class="nav-btn" onclick="show('projects')">📋 Projects</button>
+<button class="nav-btn" onclick="show('quotes')">📝 Quotes</button>
 <button class="nav-btn" onclick="show('history')">📜 History</button>
 </div>
 </div>
 <div class="main">
-<!-- SCHEDULER -->
 <div id="scheduler" class="section active">
 <div class="header">
 <h2>📅 Project Scheduler</h2>
-<div class="weather-badge" id="currentWeather">
-<span>⏳ Loading weather...</span>
-</div>
+<div class="weather-badge" id="currentWeather"><span>⏳ Loading...</span></div>
 </div>
 <div class="stats">
 <div class="stat"><div class="val" id="totalTasks">0</div><div class="lbl">Tasks</div></div>
@@ -128,6 +141,11 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
 <div class="form-group"><label>Duration (days)</label><input type="number" id="taskDays" value="1" min="1"></div>
 <div class="form-group" style="display:flex;align-items:flex-end"><button class="btn" id="addTaskBtn">Add Task</button></div>
 </div>
+<div class="pred-selector" id="predSelector"></div>
+</div>
+<div class="card" style="display:flex;gap:0.5rem;flex-wrap:wrap">
+<button class="btn btn2" onclick="loadExample()">📋 Load Example</button>
+<button class="btn btn-danger" onclick="clearProject()">🗑️ Clear All</button>
 </div>
 <div class="tbl">
 <table><thead><tr><th>Task</th><th>Days</th><th>ES</th><th>EF</th><th>LS</th><th>LF</th><th>Float</th><th>Status</th><th></th></tr></thead>
@@ -137,351 +155,99 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
 </div>
 </div>
 <div id="gantt" class="section">
-<div class="card">
-<h3>📊 Gantt Chart</h3>
-<div class="gantt-container" id="ganttChart"></div>
-</div>
+<div class="card"><h3>📊 Gantt Chart</h3><div class="gantt-container" id="ganttChart"></div></div>
 </div>
 <div id="weather" class="section">
 <div class="card">
-<h3>🌤️ 5-Day Weather Forecast</h3>
+<h3>🌤️ 5-Day Weather</h3>
 <div class="location-select">
-<select id="locationSelect" onchange="fetchWeather()">
+<select id="locationSelect">
 <option value="36.97,-122.03">Santa Cruz, CA</option>
 <option value="37.77,-122.42">San Francisco, CA</option>
 <option value="34.05,-118.24">Los Angeles, CA</option>
 <option value="40.71,-74.01">New York, NY</option>
-<option value="41.88,-87.63">Chicago, IL</option>
 </select>
 <button class="btn" onclick="fetchWeather()">Refresh</button>
 </div>
 <div class="weather-grid" id="weatherGrid"></div>
 </div>
-<div class="card">
-<h3>⚠️ Weather Alerts</h3>
-<div id="weatherAlerts"></div>
+<div class="card"><h3>⚠️ Alerts</h3><div id="weatherAlerts"></div></div>
+</div>
+</div>
+<div id="quotes" class="section">
+<div class="header"><h2>📝 Quote Builder</h2></div>
+<div class="quote-grid">
+<div class="quote-section">
+<h3>New Quote</h3>
+<div class="form" style="grid-template-columns:1fr 1fr">
+<div class="form-group"><label>Client Name</label><input id="qClient" placeholder="John Smith"></div>
+<div class="form-group"><label>Project</label><input id="qProject" placeholder="Kitchen Remodel"></div>
+</div>
+<div class="form-group"><label>Address</label><input id="qAddress" placeholder="123 Main St, City, State"></div>
+<div class="form" style="grid-template-columns:1fr 1fr">
+<div class="form-group"><label>Email</label><input id="qEmail" placeholder="client@email.com"></div>
+<div class="form-group"><label>Phone</label><input id="qPhone" placeholder="(555) 123-4567"></div>
+</div>
+<h4 style="margin:1rem 0">📷 Project Photos</h4>
+<input type="file" id="photoInput" multiple accept="image/*" style="display:none" onchange="handlePhotos()">
+<button class="btn btn2" onclick="document.getElementById('photoInput').click()">📷 Add Photos</button>
+<div class="photos-grid" id="photosGrid"></div>
+<h4 style="margin:1rem 0">📋 Line Items</h4>
+<div id="lineItems"></div>
+<button class="btn btn2" onclick="addLine()">➕ Add Item</button>
+<div class="form" style="grid-template-columns:1fr 1fr;margin-top:1rem">
+<div class="form-group"><label>Labor Rate ($/hr)</label><input id="laborRate" type="number" value="75"></div>
+<div class="form-group"><label>Markup (%)</label><input id="markup" type="number" value="30"></div>
+</div>
+<div class="form-group"><label>Notes / Scope</label><textarea id="qNotes" placeholder="Additional notes..."></textarea></div>
+<div class="total-box">
+<div class="total-row"><span>Labor</span><span id="laborTotal">$0</span></div>
+<div class="total-row"><span>Materials</span><span id="matTotal">$0</span></div>
+<div class="total-row"><span>Markup</span><span id="markTotal">$0</span></div>
+<div class="total-row final"><span>TOTAL</span><span id="grandTotal">$0</span></div>
+</div>
+<div class="actions">
+<button class="btn" onclick="saveQuote()">💾 Save Quote</button>
+<button class="btn btn2" onclick="printQuote()">🖨️ Print / PDF</button>
+<button class="btn btn2" onclick="newQuote()">➕ New</button>
+</div>
+</div>
+<div class="quote-section">
+<h3>Saved Quotes</h3>
+<div class="saved-quotes" id="savedList"></div>
 </div>
 </div>
 </div>
-<!-- PROJECTS -->
-<div id="projects" class="section">
-<div class="header"><h2>📋 Projects</h2><button class="btn" onclick="newProject()">➕ New Project</button></div>
-<div id="projectList"></div>
-</div>
-<!-- HISTORY -->
 <div id="history" class="section">
 <div class="header"><h2>📜 Activity History</h2></div>
 <div id="historyList"></div>
 </div>
 </div>
+</div>
 <script>
-// DATA
-var tasks = [];
-var projects = [];
-var historyLog = [];
-var weatherData = [];
-
-// WEATHER CODES
-var weatherCodes = {
-  0: {icon: '☀️', cond: 'Clear'},
-  1: {icon: '🌤️', cond: 'Mainly Clear'},
-  2: {icon: '⛅', cond: 'Partly Cloudy'},
-  3: {icon: '☁️', cond: 'Overcast'},
-  45: {icon: '🌫️', cond: 'Fog'},
-  48: {icon: '🌫️', cond: 'Depositing Rime Fog'},
-  51: {icon: '🌧️', cond: 'Light Drizzle'},
-  53: {icon: '🌧️', cond: 'Drizzle'},
-  55: {icon: '🌧️', cond: 'Heavy Drizzle'},
-  61: {icon: '🌧️', cond: 'Light Rain'},
-  63: {icon: '🌧️', cond: 'Rain'},
-  65: {icon: '🌧️', cond: 'Heavy Rain'},
-  71: {icon: '🌨️', cond: 'Light Snow'},
-  73: {icon: '🌨️', cond: 'Snow'},
-  75: {icon: '🌨️', cond: 'Heavy Snow'},
-  77: {icon: '🌨️', cond: 'Snow Grains'},
-  80: {icon: '🌦️', cond: 'Rain Showers'},
-  81: {icon: '🌦️', cond: 'Rain Showers'},
-  82: {icon: '🌦️', cond: 'Violent Showers'},
-  85: {icon: '🌨️', cond: 'Snow Showers'},
-  86: {icon: '🌨️', cond: 'Snow Showers'},
-  95: {icon: '⛈️', cond: 'Thunderstorm'},
-  96: {icon: '⛈️', cond: 'Thunderstorm'},
-  99: {icon: '⛈️', cond: 'Thunderstorm'}
-};
-
-function isWorkable(code) {
-  return code <= 3 || code >= 45 && code <= 48;
-}
-
-// LOAD
-var s = localStorage.getItem('bpTasks');
-if (s) { try { tasks = JSON.parse(s); } catch(e) {} }
-var p = localStorage.getItem('bpProjects');
-if (p) { try { projects = JSON.parse(p); } catch(e) {} }
-var h = localStorage.getItem('bpHistory');
-if (h) { try { historyLog = JSON.parse(h); } catch(e) {} }
-
-// HISTORY
-function addHistory(action, details) {
-  historyLog.unshift({time: new Date().toLocaleString(), action: action, details: details});
-  if (historyLog.length > 50) historyLog.pop();
-  localStorage.setItem('bpHistory', JSON.stringify(historyLog));
-  renderHistory();
-}
-
-// CPM
-function cpm() {
-  if (tasks.length === 0) return [];
-  var map = {};
-  tasks.forEach(function(t) { map[t.id] = Object.assign({}, t); });
-  var arr = Object.keys(map).map(function(k) { return map[k]; });
-  var done = new Set();
-  var iter = 0;
-  while (done.size < arr.length && iter < 100) {
-    arr.forEach(function(t) {
-      if (done.has(t.id)) return;
-      var can = true;
-      var maxEF = 0;
-      (t.pred || []).forEach(function(pid) {
-        if (!map[pid] || !done.has(pid)) { can = false; }
-        else { maxEF = Math.max(maxEF, map[pid].ef); }
-      });
-      if (can || !(t.pred && t.pred.length)) {
-        t.es = maxEF;
-        t.ef = t.es + t.duration;
-        done.add(t.id);
-      }
-    });
-    iter++;
-  }
-  var projDur = Math.max.apply(null, Object.keys(map).map(function(k) { return map[k].ef; }).concat([0]));
-  done.clear();
-  var rev = Object.keys(map).map(function(k) { return map[k]; }).reverse();
-  iter = 0;
-  while (done.size < arr.length && iter < 100) {
-    rev.forEach(function(t) {
-      if (done.has(t.id)) return;
-      var succs = Object.keys(map).map(function(k) { return map[k]; }).filter(function(s) { return (s.pred || []).includes(t.id); });
-      var can = true;
-      var minLS = projDur;
-      if (succs.length === 0) { t.lf = projDur; }
-      else {
-        succs.forEach(function(s) {
-          if (!done.has(s.id)) { can = false; }
-          else { minLS = Math.min(minLS, s.ls); }
-        });
-        if (can) t.lf = minLS;
-      }
-      if (can) {
-        t.ls = t.lf - t.duration;
-        t.float = t.ls - t.es;
-        t.isCrit = t.float === 0;
-        done.add(t.id);
-      }
-    });
-    iter++;
-  }
-  return Object.keys(map).map(function(k) { return map[k]; });
-}
-
-// RENDER TASKS
-function render() {
-  var ct = cpm();
-  document.getElementById('totalTasks').textContent = ct.length;
-  document.getElementById('totalDays').textContent = Math.max.apply(null, ct.map(function(t) { return t.ef; }).concat([0]));
-  document.getElementById('critTasks').textContent = ct.filter(function(t) { return t.isCrit; }).length;
-  document.getElementById('floatTasks').textContent = ct.filter(function(t) { return t.float > 0; }).length;
-  
-  var tbody = document.getElementById('taskTable');
-  var empty = document.getElementById('emptyState');
-  if (ct.length === 0) {
-    tbody.innerHTML = '';
-    empty.style.display = 'block';
-  } else {
-    empty.style.display = 'none';
-    tbody.innerHTML = ct.map(function(t) {
-      return '<tr' + (t.isCrit ? ' style="background:rgba(239,68,68,0.05)"' : '') + '>' +
-        '<td><input value="' + t.name + '" onchange="updateName(\'' + t.id + '\',this.value)"></td>' +
-        '<td><input class="num" type="number" value="' + t.duration + '" min="1" onchange="updateDur(\'' + t.id + '\',this.value)"></td>' +
-        '<td class="es">' + t.es + '</td><td class="ef">' + t.ef + '</td><td class="ls">' + t.ls + '</td><td class="lf">' + t.lf + '</td><td class="flt">' + t.float + '</td>' +
-        '<td><span class="badge ' + (t.isCrit ? 'badge-crit' : 'badge-norm') + '">' + (t.isCrit ? 'Critical' : 'Normal') + '</span></td>' +
-        '<td><button class="del" onclick="deleteTask(\'' + t.id + '\')">✕</button></td></tr>';
-    }).join('');
-  }
-  localStorage.setItem('bpTasks', JSON.stringify(tasks));
-  renderGantt();
-}
-
-function addTask() {
-  var nameInput = document.getElementById('taskName');
-  var durInput = document.getElementById('taskDays');
-  var name = nameInput.value.trim();
-  var dur = parseInt(durInput.value) || 1;
-  if (!name) {
-    alert('Please enter a task name');
-    return;
-  }
-  tasks.push({id: 't' + Date.now(), name: name, duration: dur, pred: []});
-  nameInput.value = '';
-  addHistory('Task Added', name + ' (' + dur + ' days)');
-  render();
-}
-
-function deleteTask(id) {
-  var t = tasks.find(function(x) { return x.id === id; });
-  tasks = tasks.filter(function(t) { return t.id !== id; });
-  tasks.forEach(function(t) { t.pred = (t.pred || []).filter(function(p) { return p !== id; }); });
-  if (t) addHistory('Task Deleted', t.name);
-  render();
-}
-
-function updateName(id, val) {
-  var t = tasks.find(function(x) { return x.id === id; });
-  if (t) { t.name = val; localStorage.setItem('bpTasks', JSON.stringify(tasks)); }
-}
-
-function updateDur(id, val) {
-  var t = tasks.find(function(x) { return x.id === id; });
-  if (t) { t.duration = parseInt(val) || 1; addHistory('Task Updated', t.name + ' duration changed'); render(); }
-}
-
-// GANTT
-function renderGantt() {
-  var ct = cpm();
-  var container = document.getElementById('ganttChart');
-  if (ct.length === 0) {
-    container.innerHTML = '<p class="empty">Add tasks to see Gantt chart</p>';
-    return;
-  }
-  var projDur = Math.max.apply(null, ct.map(function(t) { return t.ef; }).concat([1]));
-  var html = '<div class="gantt-row"><div class="gantt-label"><strong>Task</strong></div><div class="gantt-bar-container"><div class="gantt-grid">';
-  for (var i = 0; i <= projDur; i++) {
-    html += '<div class="gantt-cell"></div>';
-  }
-  html += '</div></div></div>';
-  ct.forEach(function(t) {
-    var width = (t.duration / projDur) * 100;
-    var left = (t.es / projDur) * 100;
-    html += '<div class="gantt-row"><div class="gantt-label">' + t.name + '</div><div class="gantt-bar-container"><div class="gantt-grid">';
-    for (var i = 0; i <= projDur; i++) {
-      html += '<div class="gantt-cell"></div>';
-    }
-    html += '</div><div class="gantt-bar ' + (t.isCrit ? 'critical' : 'normal') + '" style="width:' + width + '%;left:' + left + '%">' + t.duration + 'd</div></div></div>';
-  });
-  container.innerHTML = html;
-}
-
-// WEATHER
-function fetchWeather() {
-  var loc = document.getElementById('locationSelect').value.split(',');
-  var lat = loc[0], lon = loc[1];
-  var url = 'https://api.open-meteo.com/v1/forecast?latitude=' + lat + '&longitude=' + lon + '&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=auto';
-  
-  fetch(url).then(function(r) { return r.json(); }).then(function(d) {
-    weatherData = d.daily.time.map(function(t, i) {
-      var code = d.daily.weathercode[i];
-      var w = weatherCodes[code] || {icon: '❓', cond: 'Unknown'};
-      return {
-        day: new Date(t).toLocaleDateString('en-US', {weekday: 'short'}),
-        icon: w.icon,
-        cond: w.cond,
-        high: Math.round(d.daily.temperature_2m_max[i]),
-        low: Math.round(d.daily.temperature_2m_min[i]),
-        workable: isWorkable(code)
-      };
-    });
-    renderWeather();
-    
-    // Current weather
-    if (weatherData.length > 0) {
-      var current = weatherData[0];
-      document.getElementById('currentWeather').innerHTML = '<span>' + current.icon + '</span><span>' + current.high + '°F ' + current.cond + '</span>';
-    }
-  }).catch(function(e) {
-    document.getElementById('weatherGrid').innerHTML = '<p class="empty">Failed to load weather</p>';
-  });
-}
-
-function renderWeather() {
-  var grid = document.getElementById('weatherGrid');
-  grid.innerHTML = weatherData.map(function(w) {
-    return '<div class="weather-day ' + (w.workable ? 'workable' : 'unworkable') + '">' +
-      '<div class="icon">' + w.icon + '</div>' +
-      '<div class="day">' + w.day + '</div>' +
-      '<div class="temp">' + w.high + '°</div>' +
-      '<div class="cond">' + w.cond + '</div></div>';
-  }).join('');
-  
-  var alerts = document.getElementById('weatherAlerts');
-  var rainy = weatherData.filter(function(w) { return !w.workable; });
-  if (rainy.length > 0) {
-    alerts.innerHTML = rainy.map(function(w) {
-      return '<div class="history-item"><div class="action">⚠️ ' + w.day + ': ' + w.cond + '</div><div class="details">Outdoor work may be delayed. Consider scheduling indoor tasks.</div></div>';
-    }).join('');
-  } else {
-    alerts.innerHTML = '<p style="color:var(--primary)">✓ No weather concerns for the next 5 days!</p>';
-  }
-}
-
-// PROJECTS
-function newProject() {
-  var name = prompt('Project name:');
-  if (!name) return;
-  projects.push({id: Date.now(), name: name, status: 'active', created: new Date().toLocaleDateString()});
-  localStorage.setItem('bpProjects', JSON.stringify(projects));
-  addHistory('Project Created', name);
-  renderProjects();
-}
-
-function renderProjects() {
-  var list = document.getElementById('projectList');
-  if (projects.length === 0) {
-    list.innerHTML = '<p class="empty">No projects yet</p>';
-  } else {
-    list.innerHTML = projects.map(function(p) {
-      return '<div class="project-card"><div class="name">' + p.name + '</div><div class="info"><span>📅 ' + p.created + '</span></div><span class="status active">' + p.status + '</span></div>';
-    }).join('');
-  }
-}
-
-// HISTORY
-function renderHistory() {
-  var list = document.getElementById('historyList');
-  if (historyLog.length === 0) {
-    list.innerHTML = '<p class="empty">No history yet</p>';
-  } else {
-    list.innerHTML = historyLog.map(function(h) {
-      return '<div class="history-item"><div class="date">' + h.time + '</div><div class="action">' + h.action + '</div><div class="details">' + h.details + '</div></div>';
-    }).join('');
-  }
-}
-
-// NAV
-function show(page) {
-  document.querySelectorAll('.nav-btn').forEach(function(b) { b.classList.remove('active'); });
-  document.querySelector('[onclick="show(\'' + page + '\')"]').classList.add('active');
-  document.querySelectorAll('.section').forEach(function(s) { s.classList.remove('active'); });
-  document.getElementById(page).classList.add('active');
-  if (page === 'projects') renderProjects();
-  if (page === 'history') renderHistory();
-}
-
-function showTab(tab) {
-  document.querySelectorAll('#scheduler .tab').forEach(function(b) { b.classList.remove('active'); });
-  document.querySelector('[onclick="showTab(\'' + tab + '\')"]').classList.add('active');
-  document.querySelectorAll('#scheduler .section').forEach(function(s) { s.classList.remove('active'); });
-  document.getElementById(tab).classList.add('active');
-}
-
-// INIT
-document.getElementById('addTaskBtn').addEventListener('click', addTask);
-document.getElementById('taskName').addEventListener('keypress', function(e) {
-  if (e.key === 'Enter') addTask();
-});
-render();
-renderHistory();
-fetchWeather();
-addHistory('Session Started', 'BuildPro loaded');
-</script>
-</body>
-</html>
+var tasks = [], quotes = [], historyLog = [], weatherData = [], selectedPreds = [], lineItems = [{desc:'Labor',qty:1,rate:75,type:'labor'}], photos = [];
+var weatherCodes = {0:{icon:'☀️',cond:'Clear'},1:{icon:'🌤️',cond:'Mainly Clear'},2:{icon:'⛅',cond:'Partly Cloudy'},3:{icon:'☁️',cond:'Overcast'},45:{icon:'🌫️',cond:'Fog'},48:{icon:'🌫️',cond:'Fog'},51:{icon:'🌧️',cond:'Drizzle'},61:{icon:'🌧️',cond:'Rain'},63:{icon:'🌧️',cond:'Rain'},65:{icon:'🌧️',cond:'Heavy Rain'},71:{icon:'🌨️',cond:'Snow'},73:{icon:'🌨️',cond:'Snow'},80:{icon:'🌦️',cond:'Showers'},95:{icon:'⛈️',cond:'Thunderstorm'}};
+function isWorkable(code){return code<=3||code===45||code===48;}
+var s=localStorage.getItem('bpTasks');if(s)try{tasks=JSON.parse(s)}catch(e){}
+var q=localStorage.getItem('bpQuotes');if(q)try{quotes=JSON.parse(q)}catch(e){}
+var h=localStorage.getItem('bpHistory');if(h)try{historyLog=JSON.parse(h)}catch(e){}
+function addHistory(action,details){historyLog.unshift({time:new Date().toLocaleString(),action:action,details:details});if(historyLog.length>50)historyLog.pop();localStorage.setItem('bpHistory',JSON.stringify(historyLog));renderHistory();}
+function cpm(){if(tasks.length===0)return[];var m={};tasks.forEach(function(t){m[t.id]=Object.assign({},t)});var a=Object.keys(m).map(function(k){return m[k]});var d=new Set(),iter=0;while(d.size<a.length&&iter<100){a.forEach(function(t){if(d.has(t.id))return;var can=true,maxEF=0;(t.pred||[]).forEach(function(pid){if(!m[pid]||!d.has(pid))can=false;else maxEF=Math.max(maxEF,m[pid].ef)});if(can||!(t.pred&&t.pred.length)){t.es=maxEF;t.ef=t.es+t.duration;d.add(t.id)}});iter++}var pd=Math.max.apply(null,Object.keys(m).map(function(k){return m[k].ef}).concat([0]));d.clear();var rev=Object.keys(m).map(function(k){return m[k]}).reverse();iter=0;while(d.size<a.length&&iter<100){rev.forEach(function(t){if(d.has(t.id))return;var succs=Object.keys(m).map(function(k){return m[k]}).filter(function(s){return(s.pred||[]).includes(t.id)});var can=true,minLS=pd;if(succs.length===0)t.lf=pd;else{succs.forEach(function(s){if(!d.has(s.id))can=false;else minLS=Math.min(minLS,s.ls)});if(can)t.lf=minLS}if(can){t.ls=t.lf-t.duration;t.float=t.ls-t.es;t.isCrit=t.float===0;d.add(t.id)}});iter++}return Object.keys(m).map(function(k){return m[k]})}
+function render(){var ct=cpm();document.getElementById('totalTasks').textContent=ct.length;document.getElementById('totalDays').textContent=Math.max.apply(null,ct.map(function(t){return t.ef}).concat([0]));document.getElementById('critTasks').textContent=ct.filter(function(t){return t.isCrit}).length;document.getElementById('floatTasks').textContent=ct.filter(function(t){return t.float>0}).length;var tb=document.getElementById('taskTable'),es=document.getElementById('emptyState');if(ct.length===0){tb.innerHTML='';es.style.display='block'}else{es.style.display='none';tb.innerHTML=ct.map(function(t){return'<tr'+(t.isCrit?' style="background:rgba(239,68,68,0.05)"':'')+'><td><input value="'+t.name+'" onchange="updateTaskName(\''+t.id+'\',this.value)"></td><td><input class="num" type="number" value="'+t.duration+'" min="1" onchange="updateTaskDur(\''+t.id+'\',this.value)"></td><td class="es">'+t.es+'</td><td class="ef">'+t.ef+'</td><td class="ls">'+t.ls+'</td><td class="lf">'+t.lf+'</td><td class="flt">'+t.float+'</td><td><span class="badge '+(t.isCrit?'badge-crit':'badge-norm')+'">'+(t.isCrit?'Critical':'Normal')+'</span></td><td><button class="del" onclick="deleteTask(\''+t.id+'\')">✕</button></td></tr>'}).join('')}renderPredSelector();renderGantt();localStorage.setItem('bpTasks',JSON.stringify(tasks))}
+function addTask(){var n=document.getElementById('taskName').value.trim(),d=parseInt(document.getElementById('taskDays').value)||1;if(!n){alert('Enter task name');return}tasks.push({id:'t'+Date.now(),name:n,duration:d,pred:selectedPreds.slice()});document.getElementById('taskName').value='';selectedPreds=[];addHistory('Task Added',n+' ('+d+' days)');render()}
+function deleteTask(id){var t=tasks.find(function(x){return x.id===id});tasks=tasks.filter(function(t){return t.id!==id});tasks.forEach(function(t){t.pred=(t.pred||[]).filter(function(p){return p!==id})});if(t)addHistory('Task Deleted',t.name);render()}
+function updateTaskName(id,val){var t=tasks.find(function(x){return x.id===id});if(t){t.name=val;localStorage.setItem('bpTasks',JSON.stringify(tasks))}}
+function updateTaskDur(id,val){var t=tasks.find(function(x){return x.id===id});if(t){t.duration=parseInt(val)||1;addHistory('Task Updated',t.name);render()}}
+function togglePred(id){if(selectedPreds.includes(id))selectedPreds=selectedPreds.filter(function(p){return p!==id});else selectedPreds.push(id);renderPredSelector()}
+function renderPredSelector(){var ps=document.getElementById('predSelector');if(tasks.length===0){ps.innerHTML='<span style="font-size:0.75rem;color:var(--text2)">Add tasks first to set dependencies</span>';return}ps.innerHTML='<span style="font-size:0.75rem;color:var(--text2)">Depends on:</span>'+tasks.map(function(t){return'<button class="pred-btn '+(selectedPreds.includes(t.id)?'selected':'')+'" onclick="togglePred(\''+t.id+'\')">'+t.name+'</button>'}).join('')}
+function loadExample(){tasks=[{id:'t1',name:'Site Prep',duration:3,pred:[]},{id:'t2',name:'Foundation',duration:5,pred:['t1']},{id:'t3',name:'Framing',duration:7,pred:['t2']},{id:'t4',name:'Electrical',duration:4,pred:['t3']},{id:'t5',name:'Plumbing',duration:4,pred:['t3']},{id:'t6',name:'HVAC',duration:3,pred:['t3']},{id:'t7',name:'Drywall',duration:5,pred:['t4','t5','t6']},{id:'t8',name:'Paint',duration:4,pred:['t7']},{id:'t9',name:'Flooring',duration:3,pred:['t7']},{id:'t10',name:'Final Inspection',duration:1,pred:['t8','t9']}];addHistory('Example Loaded','10-task construction schedule');render()}
+function clearProject(){if(!confirm('Clear all tasks?'))return;tasks=[];selectedPreds=[];addHistory('Project Cleared','All tasks removed');render()}
+function renderGantt(){var ct=cpm();var c=document.getElementById('ganttChart');if(ct.length===0){c.innerHTML='<p class="empty">Add tasks to see Gantt</p>';return}var pd=Math.max.apply(null,ct.map(function(t){return t.ef}).concat([1]));var html='<div class="gantt-row"><div class="gantt-label"><strong>Task</strong></div><div class="gantt-bar-container"><div class="gantt-grid">';for(var i=0;i<=pd;i++)html+='<div class="gantt-cell"></div>';html+='</div></div></div>';ct.forEach(function(t){var w=(t.duration/pd)*100,l=(t.es/pd)*100;html+='<div class="gantt-row"><div class="gantt-label">'+t.name+'</div><div class="gantt-bar-container"><div class="gantt-grid">';for(var i=0;i<=pd;i++)html+='<div class="gantt-cell"></div>';html+='</div><div class="gantt-bar '+(t.isCrit?'critical':'normal')+'" style="width:'+w+'%;left:'+l+'%">'+t.duration+'d</div></div></div>'});c.innerHTML=html}
+function fetchWeather(){var loc=document.getElementById('locationSelect').value.split(',');var url='https://api.open-meteo.com/v1/forecast?latitude='+loc[0]+'&longitude='+loc[1]+'&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=auto';fetch(url).then(function(r){return r.json()}).then(function(d){weatherData=d.daily.time.map(function(t,i){var code=d.daily.weathercode[i];var w=weatherCodes[code]||{icon:'❓',cond:'Unknown'};return{day:new Date(t).toLocaleDateString('en-US',{weekday:'short'}),icon:w.icon,cond:w.cond,high:Math.round(d.daily.temperature_2m_max[i]),low:Math.round(d.daily.temperature_2m_min[i]),workable:isWorkable(code)}});renderWeather();if(weatherData.length>0)document.getElementById('currentWeather').innerHTML='<span>'+weatherData[0].icon+'</span><span>'+weatherData[0].high+'°F '+weatherData[0].cond+'</span>'})}
+function renderWeather(){document.getElementById('weatherGrid').innerHTML=weatherData.map(function(w){return'<div class="weather-day '+(w.workable?'workable':'unworkable')+'"><div class="icon">'+w.icon+'</div><div class="day">'+w.day+'</div><div class="temp">'+w.high+'°</div><div class="cond">'+w.cond+'</div></div>'}).join('');var rainy=weatherData.filter(function(w){return!w.workable});document.getElementById('weatherAlerts').innerHTML=rainy.length>0?rainy.map(function(w){return'<div class="history-item"><div class="action">⚠️ '+w.day+': '+w.cond+'</div><div class="details">Outdoor work may be delayed</div></div>'}).join(''):'<p style="color:var(--primary)">✓ No weather concerns!</p>'}
+function renderLines(){document.getElementById('lineItems').innerHTML=lineItems.map(function(l,i){return'<div class="line-item"><input placeholder="Description" value="'+l.desc+'" onchange="upLine('+i+',\'desc\',this.value)"><input type="number" placeholder="Qty" value="'+l.qty+'" onchange="upLine('+i+',\'qty\',this.value)"><input type="number" placeholder="$" value="'+l.rate+'" onchange="upLine('+i+',\'rate\',this.value)"><input disabled value="$'+(l.qty*l.rate)+'"><button class="del-btn" onclick="delLine('+i+')">✕</button></div>'}).join('');calcTotal()}
+function addLine(){lineItems.push({desc:'',qty:1,rate:0,type:'material'});renderLines()}
+function delLine(i){lineItems.splice(i,1);renderLines()}
+function upLine(i,f,v){lineItems[i][f]=f==='desc'?v:parseFloat(v)||0;renderLines()}
+function calcTotal(){var labor=lineItems.filter(function(l){return l.type==='labor'}).reduce(function(s,l){return s+l.qty*l.rate},0);var mat=lineItems.filter(function(l){return l.type==='material'}).reduce(function(s,l){return s+l.qty*l.rate},0);var mark=parseFloat(document.getElementById('markup').value)||0;var markAmt=(labor+mat)*mark/100;var total=labor+mat+markAmt;document.getElementById('laborTotal').textContent='$'+labor.toLocaleString();document.getElementById('matTotal').textContent='$'+mat.toLocaleString();document.getElementById('markTotal').textContent='$'+markAmt.toLocaleString();document.getElementById('grandTotal').textContent='$'+total.toLocaleString();return total}
+function saveQuote(){var total=calcTotal();var q={id:Date.now(),client:document.getElementById('qClient').value,project:document.getElementById('qProject').value,address:document.getElementById('qAddress').value,email:document.getElementById('qEmail').value,phone:document.getElementById('qPhone').value,notes:document.getElementById('qNotes').value,laborRate:document.getElementById('laborRate').value,markup:document.getElementById('markup').value,items:JSON.parse(JSON.stringify(lineItems)),photos:photos.slice
