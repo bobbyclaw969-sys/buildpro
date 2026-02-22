@@ -22,7 +22,6 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
 .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
 .header h2 { font-size: 1.75rem; }
 .weather-badge { display: flex; align-items: center; gap: 0.5rem; background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 0.5rem 1rem; font-size: 0.9rem; }
-.weather-badge .icon { font-size: 1.5rem; }
 .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
 .stat { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; }
 .stat .val { font-size: 1.5rem; font-weight: 700; }
@@ -37,7 +36,7 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
 .form { display: grid; grid-template-columns: 2fr 1fr auto; gap: 0.75rem; margin-bottom: 1rem; }
 .form-group label { display: block; font-size: 0.75rem; color: var(--text2); margin-bottom: 0.3rem; }
 .form-group input, .form-group select { width: 100%; padding: 0.6rem; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 0.9rem; }
-.btn { padding: 0.6rem 1.25rem; background: var(--primary); color: #fff; border: 0; border-radius: 8px; cursor: pointer; font-weight: 500; }
+.btn { padding: 0.6rem 1.25rem; background: var(--primary); color: #fff; border: 0; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 0.9rem; }
 .btn:hover { background: var(--primary-dark); }
 .btn2 { background: rgba(255,255,255,0.1); }
 .tbl { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; overflow-x: auto; }
@@ -69,6 +68,18 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
 .weather-day .cond { font-size: 0.75rem; color: var(--text2); }
 .weather-day.workable { border-color: rgba(16,185,129,0.3); }
 .weather-day.unworkable { border-color: rgba(239,68,68,0.3); }
+.location-select { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+.location-select select { padding: 0.5rem; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); }
+/* Gantt */
+.gantt-container { overflow-x: auto; }
+.gantt-row { display: flex; align-items: center; border-bottom: 1px solid var(--border); min-height: 40px; }
+.gantt-label { width: 150px; padding: 0.5rem; font-size: 0.85rem; flex-shrink: 0; }
+.gantt-bar-container { flex: 1; position: relative; height: 30px; }
+.gantt-bar { position: absolute; height: 24px; top: 3px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: #fff; }
+.gantt-bar.critical { background: linear-gradient(90deg, #ef4444, #f87171); }
+.gantt-bar.normal { background: linear-gradient(90deg, var(--primary), #34d399); }
+.gantt-grid { position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; }
+.gantt-cell { flex: 1; border-left: 1px solid rgba(255,255,255,0.05); }
 /* Projects */
 .project-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem; cursor: pointer; transition: all 0.2s; }
 .project-card:hover { border-color: var(--primary); }
@@ -76,8 +87,6 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
 .project-card .info { display: flex; gap: 1rem; font-size: 0.85rem; color: var(--text2); }
 .project-card .status { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 100px; font-size: 0.75rem; margin-top: 0.5rem; }
 .project-card .status.active { background: rgba(16,185,129,0.2); color: var(--primary); }
-.project-card .status.completed { background: rgba(59,130,246,0.2); color: #3b82f6; }
-.project-card .status.on-hold { background: rgba(245,158,11,0.2); color: #f59e0b; }
 </style>
 </head>
 <body>
@@ -86,7 +95,6 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
 <div class="logo"><div class="logo-icon">🏗️</div><h1>BuildPro</h1></div>
 <div class="nav">
 <button class="nav-btn active" onclick="show('scheduler')">📅 Scheduler</button>
-<button class="nav-btn" onclick="show('quotes')">📝 Quotes</button>
 <button class="nav-btn" onclick="show('projects')">📋 Projects</button>
 <button class="nav-btn" onclick="show('history')">📜 History</button>
 </div>
@@ -96,9 +104,8 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
 <div id="scheduler" class="section active">
 <div class="header">
 <h2>📅 Project Scheduler</h2>
-<div class="weather-badge">
-<span class="icon">☀️</span>
-<span id="weatherNow">72°F Sunny</span>
+<div class="weather-badge" id="currentWeather">
+<span>⏳ Loading weather...</span>
 </div>
 </div>
 <div class="stats">
@@ -110,16 +117,16 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
 <div class="tabs">
 <button class="tab active" onclick="showTab('tasks')">Tasks</button>
 <button class="tab" onclick="showTab('gantt')">Gantt</button>
-<button class="tab" onclick="showTab('weather')">🌤️ Weather</button>
+<button class="tab" onclick="showTab('weather')">Weather</button>
 </div>
 <div id="tasks" class="section active">
 <div class="legend"><span><b>ES</b>Early Start</span><span><b>EF</b>Early Finish</span><span><b>LS</b>Late Start</span><span><b>LF</b>Late Finish</span><span><b>Float</b>Slack</span></div>
 <div class="card">
 <h3>➕ Add Task</h3>
 <div class="form">
-<div class="form-group"><label>Task Name</label><input id="taskName" placeholder="e.g., Foundation"></div>
-<div class="form-group"><label>Days</label><input id="taskDays" type="number" value="1" min="1"></div>
-<div class="form-group" style="display:flex;align-items:flex-end"><button class="btn" onclick="addTask()">Add</button></div>
+<div class="form-group"><label>Task Name</label><input type="text" id="taskName" placeholder="e.g., Foundation Pour"></div>
+<div class="form-group"><label>Duration (days)</label><input type="number" id="taskDays" value="1" min="1"></div>
+<div class="form-group" style="display:flex;align-items:flex-end"><button class="btn" id="addTaskBtn">Add Task</button></div>
 </div>
 </div>
 <div class="tbl">
@@ -129,42 +136,31 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
 <div class="empty" id="emptyState">No tasks. Add one above.</div>
 </div>
 </div>
-<div id="gantt" class="section"><div class="tbl" id="ganttChart"></div></div>
+<div id="gantt" class="section">
+<div class="card">
+<h3>📊 Gantt Chart</h3>
+<div class="gantt-container" id="ganttChart"></div>
+</div>
+</div>
 <div id="weather" class="section">
 <div class="card">
 <h3>🌤️ 5-Day Weather Forecast</h3>
-<p style="font-size:0.85rem;color:var(--text2);margin-bottom:1rem">Plan outdoor tasks around weather. Green = workable, Red = potential delays.</p>
+<div class="location-select">
+<select id="locationSelect" onchange="fetchWeather()">
+<option value="36.97,-122.03">Santa Cruz, CA</option>
+<option value="37.77,-122.42">San Francisco, CA</option>
+<option value="34.05,-118.24">Los Angeles, CA</option>
+<option value="40.71,-74.01">New York, NY</option>
+<option value="41.88,-87.63">Chicago, IL</option>
+</select>
+<button class="btn" onclick="fetchWeather()">Refresh</button>
+</div>
 <div class="weather-grid" id="weatherGrid"></div>
 </div>
 <div class="card">
 <h3>⚠️ Weather Alerts</h3>
 <div id="weatherAlerts"></div>
 </div>
-</div>
-</div>
-<!-- QUOTES -->
-<div id="quotes" class="section">
-<div class="header"><h2>📝 Quote Builder</h2></div>
-<div class="card">
-<h3>New Quote</h3>
-<div class="form" style="grid-template-columns:1fr 1fr">
-<div class="form-group"><label>Client</label><input id="qClient" placeholder="Client name"></div>
-<div class="form-group"><label>Project</label><input id="qProject" placeholder="Project name"></div>
-</div>
-<div class="form-group" style="margin-bottom:1rem"><label>Address</label><input id="qAddress" placeholder="Project address"></div>
-<div id="lineItems"></div>
-<button class="btn btn2" onclick="addLine()">➕ Add Item</button>
-<div class="form" style="grid-template-columns:1fr 1fr;margin-top:1rem">
-<div class="form-group"><label>Labor Rate ($/hr)</label><input id="laborRate" type="number" value="75"></div>
-<div class="form-group"><label>Markup (%)</label><input id="markup" type="number" value="30"></div>
-</div>
-<div style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);border-radius:8px;padding:1rem;margin-top:1rem">
-<div style="display:flex;justify-content:space-between;padding:0.3rem 0"><span>Labor</span><span id="laborTotal">$0</span></div>
-<div style="display:flex;justify-content:space-between;padding:0.3rem 0"><span>Materials</span><span id="matTotal">$0</span></div>
-<div style="display:flex;justify-content:space-between;padding:0.3rem 0"><span>Markup</span><span id="markTotal">$0</span></div>
-<div style="display:flex;justify-content:space-between;padding:0.5rem 0 0 0;border-top:1px solid rgba(255,255,255,0.1);font-weight:700;font-size:1.2rem;color:var(--primary)"><span>TOTAL</span><span id="grandTotal">$0</span></div>
-</div>
-<button class="btn" style="width:100%;margin-top:1rem" onclick="saveQuote()">💾 Save Quote</button>
 </div>
 </div>
 <!-- PROJECTS -->
@@ -181,33 +177,55 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
 <script>
 // DATA
 var tasks = [];
-var quotes = [];
 var projects = [];
-var history = [];
-var lines = [{desc: 'Labor', qty: 1, rate: 75, type: 'labor'}];
-var weatherData = [
-  {day: 'Mon', icon: '☀️', temp: 72, cond: 'Sunny', workable: true},
-  {day: 'Tue', icon: '⛅', temp: 68, cond: 'Partly Cloudy', workable: true},
-  {day: 'Wed', icon: '🌧️', temp: 58, cond: 'Rain', workable: false},
-  {day: 'Thu', icon: '☀️', temp: 70, cond: 'Sunny', workable: true},
-  {day: 'Fri', icon: '⛅', temp: 65, cond: 'Partly Cloudy', workable: true}
-];
+var historyLog = [];
+var weatherData = [];
+
+// WEATHER CODES
+var weatherCodes = {
+  0: {icon: '☀️', cond: 'Clear'},
+  1: {icon: '🌤️', cond: 'Mainly Clear'},
+  2: {icon: '⛅', cond: 'Partly Cloudy'},
+  3: {icon: '☁️', cond: 'Overcast'},
+  45: {icon: '🌫️', cond: 'Fog'},
+  48: {icon: '🌫️', cond: 'Depositing Rime Fog'},
+  51: {icon: '🌧️', cond: 'Light Drizzle'},
+  53: {icon: '🌧️', cond: 'Drizzle'},
+  55: {icon: '🌧️', cond: 'Heavy Drizzle'},
+  61: {icon: '🌧️', cond: 'Light Rain'},
+  63: {icon: '🌧️', cond: 'Rain'},
+  65: {icon: '🌧️', cond: 'Heavy Rain'},
+  71: {icon: '🌨️', cond: 'Light Snow'},
+  73: {icon: '🌨️', cond: 'Snow'},
+  75: {icon: '🌨️', cond: 'Heavy Snow'},
+  77: {icon: '🌨️', cond: 'Snow Grains'},
+  80: {icon: '🌦️', cond: 'Rain Showers'},
+  81: {icon: '🌦️', cond: 'Rain Showers'},
+  82: {icon: '🌦️', cond: 'Violent Showers'},
+  85: {icon: '🌨️', cond: 'Snow Showers'},
+  86: {icon: '🌨️', cond: 'Snow Showers'},
+  95: {icon: '⛈️', cond: 'Thunderstorm'},
+  96: {icon: '⛈️', cond: 'Thunderstorm'},
+  99: {icon: '⛈️', cond: 'Thunderstorm'}
+};
+
+function isWorkable(code) {
+  return code <= 3 || code >= 45 && code <= 48;
+}
 
 // LOAD
 var s = localStorage.getItem('bpTasks');
 if (s) { try { tasks = JSON.parse(s); } catch(e) {} }
-var q = localStorage.getItem('bpQuotes');
-if (q) { try { quotes = JSON.parse(q); } catch(e) {} }
 var p = localStorage.getItem('bpProjects');
 if (p) { try { projects = JSON.parse(p); } catch(e) {} }
 var h = localStorage.getItem('bpHistory');
-if (h) { try { history = JSON.parse(h); } catch(e) {} }
+if (h) { try { historyLog = JSON.parse(h); } catch(e) {} }
 
 // HISTORY
 function addHistory(action, details) {
-  history.unshift({time: new Date().toLocaleString(), action: action, details: details});
-  if (history.length > 50) history.pop();
-  localStorage.setItem('bpHistory', JSON.stringify(history));
+  historyLog.unshift({time: new Date().toLocaleString(), action: action, details: details});
+  if (historyLog.length > 50) historyLog.pop();
+  localStorage.setItem('bpHistory', JSON.stringify(historyLog));
   renderHistory();
 }
 
@@ -291,16 +309,24 @@ function render() {
     }).join('');
   }
   localStorage.setItem('bpTasks', JSON.stringify(tasks));
+  renderGantt();
 }
+
 function addTask() {
-  var name = document.getElementById('taskName').value.trim();
-  var dur = parseInt(document.getElementById('taskDays').value) || 1;
-  if (!name) return;
+  var nameInput = document.getElementById('taskName');
+  var durInput = document.getElementById('taskDays');
+  var name = nameInput.value.trim();
+  var dur = parseInt(durInput.value) || 1;
+  if (!name) {
+    alert('Please enter a task name');
+    return;
+  }
   tasks.push({id: 't' + Date.now(), name: name, duration: dur, pred: []});
-  document.getElementById('taskName').value = '';
+  nameInput.value = '';
   addHistory('Task Added', name + ' (' + dur + ' days)');
   render();
 }
+
 function deleteTask(id) {
   var t = tasks.find(function(x) { return x.id === id; });
   tasks = tasks.filter(function(t) { return t.id !== id; });
@@ -308,23 +334,81 @@ function deleteTask(id) {
   if (t) addHistory('Task Deleted', t.name);
   render();
 }
+
 function updateName(id, val) {
   var t = tasks.find(function(x) { return x.id === id; });
   if (t) { t.name = val; localStorage.setItem('bpTasks', JSON.stringify(tasks)); }
 }
+
 function updateDur(id, val) {
   var t = tasks.find(function(x) { return x.id === id; });
   if (t) { t.duration = parseInt(val) || 1; addHistory('Task Updated', t.name + ' duration changed'); render(); }
 }
 
+// GANTT
+function renderGantt() {
+  var ct = cpm();
+  var container = document.getElementById('ganttChart');
+  if (ct.length === 0) {
+    container.innerHTML = '<p class="empty">Add tasks to see Gantt chart</p>';
+    return;
+  }
+  var projDur = Math.max.apply(null, ct.map(function(t) { return t.ef; }).concat([1]));
+  var html = '<div class="gantt-row"><div class="gantt-label"><strong>Task</strong></div><div class="gantt-bar-container"><div class="gantt-grid">';
+  for (var i = 0; i <= projDur; i++) {
+    html += '<div class="gantt-cell"></div>';
+  }
+  html += '</div></div></div>';
+  ct.forEach(function(t) {
+    var width = (t.duration / projDur) * 100;
+    var left = (t.es / projDur) * 100;
+    html += '<div class="gantt-row"><div class="gantt-label">' + t.name + '</div><div class="gantt-bar-container"><div class="gantt-grid">';
+    for (var i = 0; i <= projDur; i++) {
+      html += '<div class="gantt-cell"></div>';
+    }
+    html += '</div><div class="gantt-bar ' + (t.isCrit ? 'critical' : 'normal') + '" style="width:' + width + '%;left:' + left + '%">' + t.duration + 'd</div></div></div>';
+  });
+  container.innerHTML = html;
+}
+
 // WEATHER
+function fetchWeather() {
+  var loc = document.getElementById('locationSelect').value.split(',');
+  var lat = loc[0], lon = loc[1];
+  var url = 'https://api.open-meteo.com/v1/forecast?latitude=' + lat + '&longitude=' + lon + '&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=auto';
+  
+  fetch(url).then(function(r) { return r.json(); }).then(function(d) {
+    weatherData = d.daily.time.map(function(t, i) {
+      var code = d.daily.weathercode[i];
+      var w = weatherCodes[code] || {icon: '❓', cond: 'Unknown'};
+      return {
+        day: new Date(t).toLocaleDateString('en-US', {weekday: 'short'}),
+        icon: w.icon,
+        cond: w.cond,
+        high: Math.round(d.daily.temperature_2m_max[i]),
+        low: Math.round(d.daily.temperature_2m_min[i]),
+        workable: isWorkable(code)
+      };
+    });
+    renderWeather();
+    
+    // Current weather
+    if (weatherData.length > 0) {
+      var current = weatherData[0];
+      document.getElementById('currentWeather').innerHTML = '<span>' + current.icon + '</span><span>' + current.high + '°F ' + current.cond + '</span>';
+    }
+  }).catch(function(e) {
+    document.getElementById('weatherGrid').innerHTML = '<p class="empty">Failed to load weather</p>';
+  });
+}
+
 function renderWeather() {
   var grid = document.getElementById('weatherGrid');
   grid.innerHTML = weatherData.map(function(w) {
     return '<div class="weather-day ' + (w.workable ? 'workable' : 'unworkable') + '">' +
       '<div class="icon">' + w.icon + '</div>' +
       '<div class="day">' + w.day + '</div>' +
-      '<div class="temp">' + w.temp + '°F</div>' +
+      '<div class="temp">' + w.high + '°</div>' +
       '<div class="cond">' + w.cond + '</div></div>';
   }).join('');
   
@@ -339,74 +423,23 @@ function renderWeather() {
   }
 }
 
-// QUOTES
-function renderLines() {
-  var container = document.getElementById('lineItems');
-  container.innerHTML = lines.map(function(l, i) {
-    return '<div style="display:grid;grid-template-columns:2fr 80px 80px 80px auto;gap:0.5rem;margin-bottom:0.5rem;align-items:end">' +
-      '<input placeholder="Description" value="' + l.desc + '" onchange="upLine(' + i + ',\'desc\',this.value)">' +
-      '<input type="number" placeholder="Qty" value="' + l.qty + '" onchange="upLine(' + i + ',\'qty\',this.value)">' +
-      '<input type="number" placeholder="$" value="' + l.rate + '" onchange="upLine(' + i + ',\'rate\',this.value)">' +
-      '<input disabled value="$' + (l.qty * l.rate) + '">' +
-      '<button style="background:rgba(239,68,68,0.2);border:0;border-radius:6px;color:#f87171;cursor:pointer;padding:0.5rem" onclick="delLine(' + i + ')">✕</button></div>';
-  }).join('');
-  calcTotal();
-}
-function addLine() { lines.push({desc: '', qty: 1, rate: 0, type: 'material'}); renderLines(); }
-function delLine(i) { lines.splice(i, 1); renderLines(); }
-function upLine(i, f, v) { lines[i][f] = f === 'desc' ? v : parseFloat(v) || 0; renderLines(); }
-function calcTotal() {
-  var labor = lines.filter(function(l) { return l.type === 'labor'; }).reduce(function(s, l) { return s + l.qty * l.rate; }, 0);
-  var mat = lines.filter(function(l) { return l.type === 'material'; }).reduce(function(s, l) { return s + l.qty * l.rate; }, 0);
-  var mark = parseFloat(document.getElementById('markup').value) || 0;
-  var markAmt = (labor + mat) * mark / 100;
-  var total = labor + mat + markAmt;
-  document.getElementById('laborTotal').textContent = '$' + labor.toLocaleString();
-  document.getElementById('matTotal').textContent = '$' + mat.toLocaleString();
-  document.getElementById('markTotal').textContent = '$' + markAmt.toLocaleString();
-  document.getElementById('grandTotal').textContent = '$' + total.toLocaleString();
-  return total;
-}
-function saveQuote() {
-  var total = calcTotal();
-  var q = {
-    id: Date.now(),
-    client: document.getElementById('qClient').value,
-    project: document.getElementById('qProject').value,
-    address: document.getElementById('qAddress').value,
-    total: total,
-    date: new Date().toLocaleDateString()
-  };
-  quotes.push(q);
-  localStorage.setItem('bpQuotes', JSON.stringify(quotes));
-  addHistory('Quote Created', q.client + ' - $' + total.toLocaleString());
-  // Clear
-  document.getElementById('qClient').value = '';
-  document.getElementById('qProject').value = '';
-  document.getElementById('qAddress').value = '';
-  lines = [{desc: 'Labor', qty: 1, rate: 75, type: 'labor'}];
-  renderLines();
-}
-
 // PROJECTS
 function newProject() {
   var name = prompt('Project name:');
   if (!name) return;
-  projects.push({id: Date.now(), name: name, status: 'active', tasks: [], created: new Date().toLocaleDateString()});
+  projects.push({id: Date.now(), name: name, status: 'active', created: new Date().toLocaleDateString()});
   localStorage.setItem('bpProjects', JSON.stringify(projects));
   addHistory('Project Created', name);
   renderProjects();
 }
+
 function renderProjects() {
   var list = document.getElementById('projectList');
   if (projects.length === 0) {
-    list.innerHTML = '<p style="text-align:center;opacity:0.5;padding:2rem">No projects yet</p>';
+    list.innerHTML = '<p class="empty">No projects yet</p>';
   } else {
     list.innerHTML = projects.map(function(p) {
-      return '<div class="project-card" onclick="openProject(\'' + p.id + '\')">' +
-        '<div class="name">' + p.name + '</div>' +
-        '<div class="info"><span>📅 ' + p.created + '</span><span>📋 ' + (p.tasks || []).length + ' tasks</span></div>' +
-        '<span class="status ' + p.status + '">' + p.status + '</span></div>';
+      return '<div class="project-card"><div class="name">' + p.name + '</div><div class="info"><span>📅 ' + p.created + '</span></div><span class="status active">' + p.status + '</span></div>';
     }).join('');
   }
 }
@@ -414,10 +447,10 @@ function renderProjects() {
 // HISTORY
 function renderHistory() {
   var list = document.getElementById('historyList');
-  if (history.length === 0) {
-    list.innerHTML = '<p style="text-align:center;opacity:0.5;padding:2rem">No history yet</p>';
+  if (historyLog.length === 0) {
+    list.innerHTML = '<p class="empty">No history yet</p>';
   } else {
-    list.innerHTML = history.map(function(h) {
+    list.innerHTML = historyLog.map(function(h) {
       return '<div class="history-item"><div class="date">' + h.time + '</div><div class="action">' + h.action + '</div><div class="details">' + h.details + '</div></div>';
     }).join('');
   }
@@ -432,6 +465,7 @@ function show(page) {
   if (page === 'projects') renderProjects();
   if (page === 'history') renderHistory();
 }
+
 function showTab(tab) {
   document.querySelectorAll('#scheduler .tab').forEach(function(b) { b.classList.remove('active'); });
   document.querySelector('[onclick="showTab(\'' + tab + '\')"]').classList.add('active');
@@ -440,10 +474,13 @@ function showTab(tab) {
 }
 
 // INIT
+document.getElementById('addTaskBtn').addEventListener('click', addTask);
+document.getElementById('taskName').addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') addTask();
+});
 render();
-renderLines();
-renderWeather();
 renderHistory();
+fetchWeather();
 addHistory('Session Started', 'BuildPro loaded');
 </script>
 </body>
